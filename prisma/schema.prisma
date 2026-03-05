@@ -1,0 +1,263 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+// En Prisma 7+, la URL se configura en prisma.config.ts
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String           @id @default(cuid())
+  email         String           @unique
+  emailVerified DateTime?
+  password      String?
+  name          String
+  image         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  accounts      Account[]
+  sessions      Session[]
+  memberships   BusinessMember[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── BUSINESS ──────────────────────────────────────────────────────────────
+
+model Business {
+  id            String           @id @default(cuid())
+  name          String
+  slug          String           @unique
+  currency      String           @default("ARS")
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  members       BusinessMember[]
+  employees     Employee[]
+  holidays      Holiday[]
+  config        BusinessConfig?
+  payrollPeriods PayrollPeriod[]
+  overtimes     Overtime[]
+  advances      Advance[]
+}
+
+model BusinessConfig {
+  id                  String            @id @default(cuid())
+  businessId          String            @unique
+  business            Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  extraRate50         Decimal           @default(1.5) @db.Decimal(4, 2)
+  extraRate100        Decimal           @default(2.0) @db.Decimal(4, 2)
+  extraRateHoliday    Decimal           @default(2.0) @db.Decimal(4, 2)
+  hourlyFormulaType   HourlyFormulaType @default(MONTHLY_200)
+  monthlyHours        Int               @default(200)
+  dailyHours          Int               @default(8)
+  workingDaysPerMonth Int               @default(25)
+  weekStartDay        Int               @default(1) // 1=Monday, 0=Sunday
+  biweeklyFirstStart  Int               @default(1)
+  biweeklyFirstEnd    Int               @default(15)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+enum HourlyFormulaType {
+  MONTHLY_200
+  DAILY_HOURS
+}
+
+model BusinessMember {
+  id         String     @id @default(cuid())
+  userId     String
+  businessId String
+  role       MemberRole @default(VIEWER)
+  createdAt  DateTime   @default(now())
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, businessId])
+  @@index([businessId])
+  @@index([userId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  VIEWER
+}
+
+// ─── EMPLOYEE ──────────────────────────────────────────────────────────────
+
+model Employee {
+  id           String         @id @default(cuid())
+  businessId   String
+  business     Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name         String
+  dni          String?
+  position     String
+  startDate    DateTime       @db.Date
+  baseSalary   Decimal        @db.Decimal(12, 2)
+  payFrequency PayFrequency
+  hourlyRate   Decimal?       @db.Decimal(10, 4) // null = calculado automáticamente
+  dailyHours   Int            @default(8)
+  status       EmployeeStatus @default(ACTIVE)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  overtimes    Overtime[]
+  payrollItems PayrollItem[]
+  advances     Advance[]
+
+  @@index([businessId])
+  @@index([businessId, status])
+}
+
+enum PayFrequency {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// ─── OVERTIME ──────────────────────────────────────────────────────────────
+
+model Overtime {
+  id         String       @id @default(cuid())
+  employeeId String
+  employee   Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  date       DateTime     @db.Date
+  hours      Decimal      @db.Decimal(5, 2)
+  type       OvertimeType
+  note       String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  @@index([employeeId])
+  @@index([businessId])
+  @@index([businessId, date])
+}
+
+enum OvertimeType {
+  EXTRA_50
+  EXTRA_100
+  HOLIDAY
+}
+
+// ─── ADVANCE / DISCOUNT ────────────────────────────────────────────────────
+
+model Advance {
+  id         String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
+  amount     Decimal  @db.Decimal(12, 2)
+  isDiscount Boolean  @default(false) // false=anticipo, true=descuento
+  note       String?
+  createdAt  DateTime @default(now())
+
+  @@index([employeeId])
+  @@index([businessId])
+}
+
+// ─── HOLIDAY ───────────────────────────────────────────────────────────────
+
+model Holiday {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  date       DateTime @db.Date
+  name       String
+  createdAt  DateTime @default(now())
+
+  @@unique([businessId, date])
+  @@index([businessId])
+}
+
+// ─── PAYROLL ───────────────────────────────────────────────────────────────
+
+model PayrollPeriod {
+  id         String       @id @default(cuid())
+  businessId String
+  business   Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  startDate  DateTime     @db.Date
+  endDate    DateTime     @db.Date
+  frequency  PayFrequency
+  status     PeriodStatus @default(DRAFT)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  items      PayrollItem[]
+
+  @@index([businessId])
+  @@index([businessId, status])
+}
+
+enum PeriodStatus {
+  DRAFT
+  FINALIZED
+}
+
+model PayrollItem {
+  id             String        @id @default(cuid())
+  periodId       String
+  period         PayrollPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  employeeId     String
+  employee       Employee      @relation(fields: [employeeId], references: [id])
+  baseSalary     Decimal       @db.Decimal(12, 2)
+  periodSalary   Decimal       @db.Decimal(12, 2) // proporcional al período
+  hourlyRate     Decimal       @db.Decimal(10, 4)
+  extra50Hours   Decimal       @default(0) @db.Decimal(6, 2)
+  extra50Amount  Decimal       @default(0) @db.Decimal(12, 2)
+  extra100Hours  Decimal       @default(0) @db.Decimal(6, 2)
+  extra100Amount Decimal       @default(0) @db.Decimal(12, 2)
+  holidayHours   Decimal       @default(0) @db.Decimal(6, 2)
+  holidayAmount  Decimal       @default(0) @db.Decimal(12, 2)
+  advances       Decimal       @default(0) @db.Decimal(12, 2)
+  discounts      Decimal       @default(0) @db.Decimal(12, 2)
+  totalAmount    Decimal       @db.Decimal(12, 2)
+  formula        Json // detalle de la fórmula para transparencia
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  @@unique([periodId, employeeId])
+  @@index([periodId])
+  @@index([employeeId])
+}
