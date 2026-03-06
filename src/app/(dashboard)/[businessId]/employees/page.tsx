@@ -27,10 +27,10 @@ export default async function EmployeesPage({ params }: Props) {
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  const activeCount = employees.filter((e: (typeof employees)[number]) => e.status === "ACTIVE").length;
-  const inactiveCount = employees.filter((e: (typeof employees)[number]) => e.status === "INACTIVE").length;
+  const activeCount = employees.filter((e) => e.status === "ACTIVE").length;
+  const inactiveCount = employees.filter((e) => e.status === "INACTIVE").length;
 
-  const employeeRows = employees.map((e: (typeof employees)[number]) => ({
+  const employeeRows = employees.map((e) => ({
     ...e,
     baseSalary: Number(e.baseSalary),
     hourlyRate: e.hourlyRate ? Number(e.hourlyRate) : null,
