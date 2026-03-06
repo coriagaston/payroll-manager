@@ -63,32 +63,30 @@ export function Sidebar({ businesses, user }: SidebarProps) {
       </div>
 
       {/* Selector de negocio */}
-      {businesses.length > 1 && (
-        <div className="p-3 border-b border-slate-100">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-full justify-start text-left font-normal h-auto py-2">
-                <div className="h-6 w-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0">
-                  {currentBusiness?.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="truncate text-sm">{currentBusiness?.name ?? "Negocio"}</span>
-                <span className="ml-auto text-slate-400">▾</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-56">
-              {businesses.map((b) => (
-                <DropdownMenuItem key={b.id} asChild>
-                  <Link href={`/${b.id}`}>{b.name}</Link>
-                </DropdownMenuItem>
-              ))}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/">Todos los negocios</Link>
+      <div className="p-3 border-b border-slate-100">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="w-full justify-start text-left font-normal h-auto py-2">
+              <div className="h-6 w-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0">
+                {currentBusiness?.name.charAt(0).toUpperCase() ?? "?"}
+              </div>
+              <span className="truncate text-sm">{currentBusiness?.name ?? "Seleccionar"}</span>
+              <span className="ml-auto text-slate-400">▾</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start" className="w-56">
+            {businesses.map((b) => (
+              <DropdownMenuItem key={b.id} asChild>
+                <Link href={`/${b.id}`}>{b.name}</Link>
               </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      )}
+            ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/">+ Nuevo negocio</Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
 
       {/* Nav */}
       <nav className="flex-1 p-3 space-y-1 overflow-y-auto">

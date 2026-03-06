@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CreateBusinessDialog } from "@/components/layout/create-business-dialog";
 
@@ -23,10 +22,7 @@ export default async function HomePage() {
     orderBy: { createdAt: "asc" },
   });
 
-  // Si solo hay un negocio, redirigir directamente
-  if (memberships.length === 1) {
-    redirect(`/${memberships[0].business.id}`);
-  }
+  // Si no hay negocios, mostrar la pantalla de creación directamente
 
   const roleLabel: Record<string, string> = {
     OWNER: "Propietario",
