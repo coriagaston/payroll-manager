@@ -76,3 +76,27 @@ export async function POST(req: NextRequest, { params }: Params) {
 
   return NextResponse.json(holiday, { status: 201 });
 }
+
+export async function DELETE(req: NextRequest, { params }: Params) {
+  const session = await getAuthSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { businessId } = await params;
+
+  try {
+    await requireBusinessAccess(businessId, session.user.id, "ADMIN");
+  } catch {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const holidayId = req.nextUrl.searchParams.get("holidayId");
+  if (!holidayId) {
+    return NextResponse.json({ error: "holidayId requerido" }, { status: 400 });
+  }
+
+  await prisma.holiday.deleteMany({
+    where: { id: holidayId, businessId },
+  });
+
+  return NextResponse.json({ ok: true });
+}

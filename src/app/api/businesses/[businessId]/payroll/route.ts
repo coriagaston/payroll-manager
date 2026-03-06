@@ -3,7 +3,7 @@ import { getAuthSession, requireBusinessAccess } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { calculatePayrollBatch } from "@/lib/payroll/calculator";
 import type { EmployeePayrollInput, PayrollPeriod, PayrollConfig } from "@/lib/payroll/types";
-
+import { payrollGenerateSchema } from "@/lib/validations/business";
 
 interface Params { params: Promise<{ businessId: string }> }
 
@@ -49,20 +49,46 @@ export async function POST(req: NextRequest, { params }: Params) {
   const preview = searchParams.get("preview") === "true";
 
   const body = await req.json();
-  const { startDate, endDate, frequency, employeeIds } = body as {
-    startDate: string;
-    endDate: string;
-    frequency: "WEEKLY" | "BIWEEKLY" | "MONTHLY";
-    employeeIds?: string[];
-  };
-
-  if (!startDate || !endDate || !frequency) {
-    return NextResponse.json({ error: "startDate, endDate y frequency son requeridos" }, { status: 400 });
+  const parsed = payrollGenerateSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json(
+      { error: "Datos inválidos", details: parsed.error.flatten().fieldErrors },
+      { status: 400 }
+    );
   }
 
-  // Obtener config del negocio
-  const bizConfig = await prisma.businessConfig.findUnique({ where: { businessId } });
+  const { startDate, endDate, frequency, employeeIds } = parsed.data;
+
+  // Obtener config y empleados en paralelo
+  const [bizConfig, employees] = await Promise.all([
+    prisma.businessConfig.findUnique({ where: { businessId } }),
+    prisma.employee.findMany({
+      where: {
+        businessId,
+        status: "ACTIVE",
+        payFrequency: frequency,
+        ...(employeeIds && employeeIds.length > 0 && { id: { in: employeeIds } }),
+      },
+      include: {
+        overtimes: {
+          where: {
+            date: { gte: new Date(startDate), lte: new Date(endDate) },
+          },
+        },
+        advances: {
+          where: {
+            date: { gte: new Date(startDate), lte: new Date(endDate) },
+          },
+        },
+      },
+    }),
+  ]);
+
   if (!bizConfig) return NextResponse.json({ error: "Config no encontrada" }, { status: 404 });
+
+  if (employees.length === 0) {
+    return NextResponse.json({ error: "No hay empleados activos con esa frecuencia de pago" }, { status: 404 });
+  }
 
   const config: PayrollConfig = {
     extraRate50: Number(bizConfig.extraRate50),
@@ -73,32 +99,6 @@ export async function POST(req: NextRequest, { params }: Params) {
     dailyHours: bizConfig.dailyHours,
     workingDaysPerMonth: bizConfig.workingDaysPerMonth,
   };
-
-  // Obtener empleados activos del negocio (con filtro opcional)
-  const employees = await prisma.employee.findMany({
-    where: {
-      businessId,
-      status: "ACTIVE",
-      payFrequency: frequency,
-      ...(employeeIds && employeeIds.length > 0 && { id: { in: employeeIds } }),
-    },
-    include: {
-      overtimes: {
-        where: {
-          date: { gte: new Date(startDate), lte: new Date(endDate) },
-        },
-      },
-      advances: {
-        where: {
-          date: { gte: new Date(startDate), lte: new Date(endDate) },
-        },
-      },
-    },
-  });
-
-  if (employees.length === 0) {
-    return NextResponse.json({ error: "No hay empleados activos con esa frecuencia de pago" }, { status: 404 });
-  }
 
   const period: PayrollPeriod = { startDate, endDate, frequency };
 

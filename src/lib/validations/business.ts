@@ -35,7 +35,15 @@ export const advanceSchema = z.object({
   note: z.string().optional(),
 });
 
+export const payrollGenerateSchema = z.object({
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de inicio inválida"),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha de fin inválida"),
+  frequency: z.enum(["WEEKLY", "BIWEEKLY", "MONTHLY"]),
+  employeeIds: z.array(z.string()).optional(),
+});
+
 export type BusinessFormData = z.infer<typeof businessSchema>;
 export type BusinessConfigFormData = z.infer<typeof businessConfigSchema>;
 export type HolidayFormData = z.infer<typeof holidaySchema>;
 export type AdvanceFormData = z.infer<typeof advanceSchema>;
+export type PayrollGenerateData = z.infer<typeof payrollGenerateSchema>;
