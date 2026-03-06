@@ -57,7 +57,8 @@ export function PayrollGenerateDialog({ businessId, currency }: Props) {
       }
       const data = await res.json();
       setPreview({ results: data.results, startDate: period.startDate, endDate: period.endDate });
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al previsualizar");
     } finally {
       setLoading(false);
@@ -81,7 +82,8 @@ export function PayrollGenerateDialog({ businessId, currency }: Props) {
       setOpen(false);
       setPreview(null);
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al guardar");
     } finally {
       setLoading(false);

@@ -49,7 +49,8 @@ export function OvertimeFormDialog({ businessId, employees, defaultEmployeeId }:
       setOpen(false);
       reset();
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al registrar horas extras");
     }
   };

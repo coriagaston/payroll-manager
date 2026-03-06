@@ -43,7 +43,8 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
       toast.success("Feriado agregado");
       reset();
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al agregar el feriado");
     } finally {
       setLoading(false);
@@ -55,7 +56,8 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
       await fetch(`/api/businesses/${businessId}/config?holidayId=${id}`, { method: "DELETE" });
       toast.success("Feriado eliminado");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al eliminar");
     }
   };

@@ -21,6 +21,7 @@ interface Employee {
   id: string;
   name: string;
   dni?: string | null;
+  cbu?: string | null;
   position: string;
   startDate: string;
   baseSalary: number;
@@ -48,6 +49,7 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
         ? {
             name: employee.name,
             dni: employee.dni ?? undefined,
+            cbu: employee.cbu ?? undefined,
             position: employee.position,
             startDate: employee.startDate,
             baseSalary: employee.baseSalary,
@@ -75,7 +77,8 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
       setOpen(false);
       reset();
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error("Error saving employee:", error);
       toast.error("Error al guardar el empleado");
     }
   };
@@ -104,6 +107,11 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
             <div className="space-y-1">
               <Label>DNI</Label>
               <Input {...register("dni")} placeholder="30111222" />
+            </div>
+
+            <div className="space-y-1">
+              <Label>CBU</Label>
+              <Input {...register("cbu")} placeholder="0000000000000000000000" maxLength={22} />
             </div>
 
             <div className="space-y-1">

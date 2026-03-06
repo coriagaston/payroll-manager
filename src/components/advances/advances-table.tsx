@@ -62,7 +62,8 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
       if (!res.ok) throw new Error();
       toast.success("Eliminado");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al eliminar");
     }
   };

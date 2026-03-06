@@ -66,7 +66,8 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
       if (!res.ok) throw new Error();
       toast.success("Empleado desactivado");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al desactivar");
     }
   };

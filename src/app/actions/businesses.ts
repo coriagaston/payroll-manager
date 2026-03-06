@@ -1,17 +1,17 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getAuthSession, requireBusinessAccess } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { businessSchema, businessConfigSchema } from "@/lib/validations/business";
+import type { BusinessFormData } from "@/lib/validations/business";
 import slugify from "@/lib/slugify";
 
-export async function createBusiness(name: string, currency = "ARS") {
+export async function createBusiness(formData: BusinessFormData) {
   const session = await getAuthSession();
   if (!session) throw new Error("No autenticado");
 
-  const data = businessSchema.parse({ name, currency });
+  const data = businessSchema.parse(formData);
 
   let slug = slugify(data.name);
   let i = 1;
@@ -23,6 +23,10 @@ export async function createBusiness(name: string, currency = "ARS") {
     data: {
       name: data.name,
       slug,
+      cuit: data.cuit || null,
+      address: data.address || null,
+      phone: data.phone || null,
+      industry: data.industry || null,
       currency: data.currency,
       config: {
         create: {
@@ -42,6 +46,31 @@ export async function createBusiness(name: string, currency = "ARS") {
   });
 
   revalidatePath("/");
+  return business;
+}
+
+export async function updateBusiness(businessId: string, formData: BusinessFormData) {
+  const session = await getAuthSession();
+  if (!session) throw new Error("No autenticado");
+
+  await requireBusinessAccess(businessId, session.user.id, "ADMIN");
+
+  const data = businessSchema.parse(formData);
+
+  const business = await prisma.business.update({
+    where: { id: businessId },
+    data: {
+      name: data.name,
+      cuit: data.cuit || null,
+      address: data.address || null,
+      phone: data.phone || null,
+      industry: data.industry || null,
+      currency: data.currency,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath(`/${businessId}`);
   return business;
 }
 

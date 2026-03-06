@@ -36,7 +36,8 @@ export function OvertimeCsvImport({ businessId }: Props) {
       if (data.errors.length > 0) {
         toast.warning(`${data.errors.length} errores en la importación`);
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al importar el CSV");
     } finally {
       setLoading(false);

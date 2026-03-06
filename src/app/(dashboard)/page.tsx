@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CreateBusinessDialog } from "@/components/layout/create-business-dialog";
+import { EditBusinessDialog } from "@/components/layout/edit-business-dialog";
 
 export default async function HomePage() {
   const session = await getAuthSession();
@@ -21,8 +22,6 @@ export default async function HomePage() {
     },
     orderBy: { createdAt: "asc" },
   });
-
-  // Si no hay negocios, mostrar la pantalla de creación directamente
 
   const roleLabel: Record<string, string> = {
     OWNER: "Propietario",
@@ -50,8 +49,8 @@ export default async function HomePage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {memberships.map((m) => (
-            <Link key={m.business.id} href={`/${m.business.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer h-full">
+            <Card key={m.business.id} className="hover:shadow-md transition-shadow h-full flex flex-col">
+              <Link href={`/${m.business.id}`} className="flex-1">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
@@ -62,16 +61,43 @@ export default async function HomePage() {
                     </Badge>
                   </div>
                   <CardTitle className="mt-3">{m.business.name}</CardTitle>
-                  <CardDescription>{m.business.currency}</CardDescription>
+                  <CardDescription>
+                    {m.business.industry && <span>{m.business.industry} · </span>}
+                    {m.business.currency}
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-1">
                   <p className="text-sm text-slate-600">
                     <span className="font-medium">{m.business._count.employees}</span>{" "}
                     empleados activos
                   </p>
+                  {m.business.cuit && (
+                    <p className="text-xs text-slate-500">CUIT: {m.business.cuit}</p>
+                  )}
+                  {m.business.address && (
+                    <p className="text-xs text-slate-500 truncate">{m.business.address}</p>
+                  )}
+                  {m.business.phone && (
+                    <p className="text-xs text-slate-500">{m.business.phone}</p>
+                  )}
                 </CardContent>
-              </Card>
-            </Link>
+              </Link>
+              {(m.role === "OWNER" || m.role === "ADMIN") && (
+                <div className="px-6 pb-4">
+                  <EditBusinessDialog
+                    business={{
+                      id: m.business.id,
+                      name: m.business.name,
+                      cuit: m.business.cuit,
+                      address: m.business.address,
+                      phone: m.business.phone,
+                      industry: m.business.industry,
+                      currency: m.business.currency,
+                    }}
+                  />
+                </div>
+              )}
+            </Card>
           ))}
         </div>
       )}

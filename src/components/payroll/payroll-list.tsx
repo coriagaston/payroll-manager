@@ -51,7 +51,8 @@ export function PayrollList({ rows, businessId, currency }: Props) {
       if (!res.ok) throw new Error();
       toast.success("Liquidación finalizada");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al finalizar");
     }
   };
@@ -65,7 +66,8 @@ export function PayrollList({ rows, businessId, currency }: Props) {
       if (!res.ok) throw new Error();
       toast.success("Liquidación eliminada");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al eliminar");
     }
   };

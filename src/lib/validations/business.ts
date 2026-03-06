@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const businessSchema = z.object({
   name: z.string().min(2, "Nombre del negocio requerido"),
+  cuit: z.string().optional(),
+  address: z.string().optional(),
+  phone: z.string().optional(),
+  industry: z.string().optional(),
   currency: z.string().default("ARS"),
 });
 

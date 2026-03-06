@@ -42,7 +42,8 @@ export function BusinessConfigForm({ businessId, defaultValues, canEdit }: Props
     try {
       await updateBusinessConfig(businessId, data);
       toast.success("Configuración guardada");
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al guardar la configuración");
     }
   };

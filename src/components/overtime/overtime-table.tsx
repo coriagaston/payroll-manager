@@ -70,7 +70,8 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
       if (!res.ok) throw new Error();
       toast.success("Registro eliminado");
       router.refresh();
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Error al eliminar");
     }
   };
