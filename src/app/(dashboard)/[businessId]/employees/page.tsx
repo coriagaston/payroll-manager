@@ -27,6 +27,9 @@ export default async function EmployeesPage({ params }: Props) {
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";
 
+  const activeCount = employees.filter((e: (typeof employees)[number]) => e.status === "ACTIVE").length;
+  const inactiveCount = employees.filter((e: (typeof employees)[number]) => e.status === "INACTIVE").length;
+
   const employeeRows = employees.map((e: (typeof employees)[number]) => ({
     ...e,
     baseSalary: Number(e.baseSalary),
@@ -40,8 +43,8 @@ export default async function EmployeesPage({ params }: Props) {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Empleados</h1>
           <p className="text-slate-500 text-sm">
-            {employees.filter((e) => e.status === "ACTIVE").length} activos ·{" "}
-            {employees.filter((e) => e.status === "INACTIVE").length} inactivos
+            {activeCount} activos ·{" "}
+            {inactiveCount} inactivos
           </p>
         </div>
         {canEdit && <EmployeeFormDialog businessId={businessId} mode="create" />}
