@@ -8,7 +8,7 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL env var is not set");
   }
   return new PrismaClient({
-    datasources: { db: { url: process.env.DATABASE_URL } },
+    datasourceUrl: process.env.DATABASE_URL,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 }
