@@ -17,6 +17,7 @@ interface Props {
 const pathLabels: Record<string, string> = {
   employees: "Empleados",
   overtime: "Horas Extras",
+  advances: "Anticipos y Descuentos",
   payroll: "Liquidaciones",
   settings: "Configuración",
 };

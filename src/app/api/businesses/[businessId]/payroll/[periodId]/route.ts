@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     where: { id: periodId, businessId },
     include: {
       items: {
-        include: { employee: { select: { name: true, position: true, payFrequency: true } } },
+        include: { employee: { select: { name: true, position: true, payFrequency: true, cbu: true } } },
         orderBy: { employee: { name: "asc" } },
       },
     },

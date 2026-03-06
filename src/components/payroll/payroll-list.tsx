@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,9 @@ export function PayrollList({ rows, businessId, currency }: Props) {
                 </Badge>
               </TableCell>
               <TableCell className="text-right space-x-2">
+                <Link href={`/${businessId}/payroll/${row.id}`}>
+                  <Button variant="outline" size="sm">Ver</Button>
+                </Link>
                 <Button
                   variant="outline"
                   size="sm"
