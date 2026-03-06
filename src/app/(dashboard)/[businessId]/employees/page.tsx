@@ -27,7 +27,7 @@ export default async function EmployeesPage({ params }: Props) {
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  const employeeRows = employees.map((e) => ({
+  const employeeRows = employees.map((e: (typeof employees)[number]) => ({
     ...e,
     baseSalary: Number(e.baseSalary),
     hourlyRate: e.hourlyRate ? Number(e.hourlyRate) : null,
