@@ -33,6 +33,7 @@ export interface EmployeePayrollInput {
   payFrequency: PayFrequency;
   hourlyRate: number | null; // null = auto-calculado
   dailyHours: number;
+  cbu?: string | null;
   overtimes: OvertimeEntry[];
   advances: AdvanceEntry[];
 }
@@ -82,4 +83,5 @@ export interface PayrollResult {
   discounts: number;
   totalAmount: number;
   formula: PayrollFormula;
+  cbu?: string | null;
 }

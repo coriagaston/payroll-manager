@@ -6,9 +6,13 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Copy, Check } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 interface Props {
   results: PayrollResult[];
@@ -29,12 +33,27 @@ const typeLabel: Record<string, string> = {
   HOLIDAY: "Feriado",
 };
 
+function CopyButton({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false);
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(value);
+    setCopied(true);
+    toast.success("CBU copiado");
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Button variant="ghost" size="icon" className="h-7 w-7 flex-shrink-0" onClick={handleCopy}>
+      {copied ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+    </Button>
+  );
+}
+
 export function PayrollPreview({ results, currency, startDate, endDate }: Props) {
   const grandTotal = results.reduce((s, r) => s + r.totalAmount, 0);
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         <h3 className="font-semibold text-slate-800">
           Previsualización · {startDate} → {endDate}
         </h3>
@@ -46,19 +65,48 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
         </div>
       </div>
 
+      {/* Sección de pagos con CBU */}
+      <div className="rounded-lg border bg-white">
+        <div className="px-4 py-3 border-b bg-slate-50 rounded-t-lg">
+          <h4 className="font-medium text-sm text-slate-700">Pagos</h4>
+          <p className="text-xs text-slate-500">Copiá el CBU para realizar cada transferencia</p>
+        </div>
+        <div className="divide-y">
+          {results.map((r) => (
+            <div key={r.employeeId} className="flex items-center justify-between px-4 py-3 gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-medium text-sm truncate">{r.employeeName}</p>
+                {r.cbu ? (
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <span className="text-xs font-mono text-slate-600">{r.cbu}</span>
+                    <CopyButton value={r.cbu} />
+                  </div>
+                ) : (
+                  <p className="text-xs text-slate-400 mt-0.5">Sin CBU cargado</p>
+                )}
+              </div>
+              <div className="text-right flex-shrink-0">
+                <p className="font-bold text-sm text-green-700">{formatCurrency(r.totalAmount, currency)}</p>
+                <Badge variant="outline" className="text-xs">{freqLabel[r.formula.frequency]}</Badge>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* Tabla resumen */}
       <div className="rounded-lg border bg-white overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Empleado</TableHead>
-              <TableHead>Frec.</TableHead>
-              <TableHead className="text-right">Sueldo período</TableHead>
-              <TableHead className="text-right">HS 50%</TableHead>
-              <TableHead className="text-right">HS 100%</TableHead>
-              <TableHead className="text-right">Feriado</TableHead>
-              <TableHead className="text-right">Anticipos</TableHead>
-              <TableHead className="text-right">Descuentos</TableHead>
+              <TableHead className="hidden sm:table-cell">Frec.</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Sueldo período</TableHead>
+              <TableHead className="text-right hidden lg:table-cell">HS 50%</TableHead>
+              <TableHead className="text-right hidden lg:table-cell">HS 100%</TableHead>
+              <TableHead className="text-right hidden lg:table-cell">Feriado</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Anticipos</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Descuentos</TableHead>
               <TableHead className="text-right font-bold">TOTAL</TableHead>
             </TableRow>
           </TableHeader>
@@ -66,23 +114,23 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
             {results.map((r) => (
               <TableRow key={r.employeeId}>
                 <TableCell className="font-medium">{r.employeeName}</TableCell>
-                <TableCell>
+                <TableCell className="hidden sm:table-cell">
                   <Badge variant="outline">{freqLabel[r.formula.frequency]}</Badge>
                 </TableCell>
-                <TableCell className="text-right">{formatCurrency(r.periodSalary, currency)}</TableCell>
-                <TableCell className="text-right text-yellow-700">
+                <TableCell className="text-right hidden md:table-cell">{formatCurrency(r.periodSalary, currency)}</TableCell>
+                <TableCell className="text-right hidden lg:table-cell text-yellow-700">
                   {r.extra50Amount > 0 ? formatCurrency(r.extra50Amount, currency) : "—"}
                 </TableCell>
-                <TableCell className="text-right text-orange-700">
+                <TableCell className="text-right hidden lg:table-cell text-orange-700">
                   {r.extra100Amount > 0 ? formatCurrency(r.extra100Amount, currency) : "—"}
                 </TableCell>
-                <TableCell className="text-right text-red-700">
+                <TableCell className="text-right hidden lg:table-cell text-red-700">
                   {r.holidayAmount > 0 ? formatCurrency(r.holidayAmount, currency) : "—"}
                 </TableCell>
-                <TableCell className="text-right text-blue-700">
+                <TableCell className="text-right hidden md:table-cell text-blue-700">
                   {r.advances > 0 ? `- ${formatCurrency(r.advances, currency)}` : "—"}
                 </TableCell>
-                <TableCell className="text-right text-red-700">
+                <TableCell className="text-right hidden md:table-cell text-red-700">
                   {r.discounts > 0 ? `- ${formatCurrency(r.discounts, currency)}` : "—"}
                 </TableCell>
                 <TableCell className="text-right font-bold">

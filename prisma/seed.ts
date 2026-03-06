@@ -1,20 +1,25 @@
 import { PrismaClient, PayFrequency, MemberRole, OvertimeType } from "@prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool } from "pg";
 import bcrypt from "bcryptjs";
+import "dotenv/config";
 
-const prisma = new PrismaClient();
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
 
 async function main() {
   console.log("🌱 Seeding database...");
 
   // Usuario owner
-  const hashedPassword = await bcrypt.hash("password123", 12);
+  const hashedPassword = await bcrypt.hash("40173735", 12);
 
   const owner = await prisma.user.upsert({
-    where: { email: "admin@demo.com" },
+    where: { email: "gaston@demo.com" },
     update: {},
     create: {
-      email: "admin@demo.com",
-      name: "Admin Demo",
+      email: "gaston@demo.com",
+      name: "Gaston",
       password: hashedPassword,
     },
   });
@@ -196,8 +201,7 @@ async function main() {
   }
 
   console.log("✅ Seed completado.");
-  console.log("   Login: admin@demo.com / password123");
-  console.log("   Login: viewer@demo.com / password123");
+  console.log("   Login: gaston@demo.com / 40173735");
 }
 
 main()

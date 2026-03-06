@@ -3,6 +3,7 @@ import { z } from "zod";
 export const employeeSchema = z.object({
   name: z.string().min(2, "Nombre requerido (mín. 2 caracteres)"),
   dni: z.string().optional(),
+  cbu: z.string().max(22).optional(),
   position: z.string().min(1, "Puesto requerido"),
   startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Fecha inválida (YYYY-MM-DD)"),
   baseSalary: z.coerce.number().positive("El sueldo debe ser mayor a 0"),

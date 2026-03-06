@@ -20,6 +20,7 @@ interface Employee {
   id: string;
   name: string;
   dni?: string | null;
+  cbu?: string | null;
   position: string;
   startDate: string;
   baseSalary: number;
@@ -96,7 +97,8 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
           <TableHeader>
             <TableRow>
               <TableHead>Nombre</TableHead>
-              <TableHead>DNI</TableHead>
+              <TableHead className="hidden md:table-cell">DNI</TableHead>
+              <TableHead className="hidden md:table-cell">CBU</TableHead>
               <TableHead>Puesto</TableHead>
               <TableHead>Ingreso</TableHead>
               <TableHead>Sueldo base</TableHead>
@@ -108,7 +110,7 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canEdit ? 8 : 7} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={canEdit ? 9 : 8} className="text-center py-8 text-slate-500">
                   No se encontraron empleados
                 </TableCell>
               </TableRow>
@@ -116,7 +118,8 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
               filtered.map((emp) => (
                 <TableRow key={emp.id} className={emp.status === "INACTIVE" ? "opacity-50" : ""}>
                   <TableCell className="font-medium">{emp.name}</TableCell>
-                  <TableCell className="text-slate-500">{emp.dni ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell text-slate-500">{emp.dni ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell text-slate-500 font-mono text-xs">{emp.cbu ?? "—"}</TableCell>
                   <TableCell>{emp.position}</TableCell>
                   <TableCell>{format(new Date(emp.startDate + "T00:00:00"), "dd/MM/yyyy")}</TableCell>
                   <TableCell>{formatCurrency(emp.baseSalary)}</TableCell>
