@@ -1,4 +1,4 @@
-import { getAuthSession, requireBusinessAccess } from "@/lib/auth";
+import { getAuthSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,32 +17,26 @@ export default async function BusinessDashboard({ params }: Props) {
 
   const { businessId } = await params;
 
-  try {
-    await requireBusinessAccess(businessId, session.user.id);
-  } catch {
-    notFound();
-  }
-
-  const business = await prisma.business.findUnique({
-    where: { id: businessId },
-    include: {
-      config: true,
-      _count: {
-        select: {
-          employees: { where: { status: "ACTIVE" } },
-        },
-      },
-    },
-  });
-
-  if (!business) notFound();
-
   const now = new Date();
   const monthStart = startOfMonth(now);
   const monthEnd = endOfMonth(now);
 
-  // Horas extras del mes actual
-  const [overtimeSummary, recentPeriods, recentEmployees] = await Promise.all([
+  // Ejecutar todas las queries en paralelo
+  const [membership, business, overtimeSummary, recentPeriods, recentEmployees] = await Promise.all([
+    prisma.businessMember.findUnique({
+      where: { userId_businessId: { userId: session.user.id, businessId } },
+    }),
+    prisma.business.findUnique({
+      where: { id: businessId },
+      include: {
+        config: true,
+        _count: {
+          select: {
+            employees: { where: { status: "ACTIVE" } },
+          },
+        },
+      },
+    }),
     prisma.overtime.groupBy({
       by: ["type"],
       where: {
@@ -67,6 +61,8 @@ export default async function BusinessDashboard({ params }: Props) {
       select: { id: true, name: true, position: true, payFrequency: true },
     }),
   ]);
+
+  if (!membership || !business) notFound();
 
   const totalOvertimeHours = overtimeSummary.reduce(
     (s, g) => s + Number(g._sum.hours ?? 0),
