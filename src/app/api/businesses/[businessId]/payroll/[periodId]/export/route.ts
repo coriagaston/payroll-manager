@@ -51,7 +51,7 @@ export async function GET(req: NextRequest, { params }: Params) {
     advances: Number(item.advances),
     discounts: Number(item.discounts),
     totalAmount: Number(item.totalAmount),
-    formula: item.formula as PayrollResult["formula"],
+    formula: item.formula as unknown as PayrollResult["formula"],
   }));
 
   const csv = generatePayrollCsv(results, periodLabel, {

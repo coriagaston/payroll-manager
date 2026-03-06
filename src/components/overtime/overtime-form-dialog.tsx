@@ -29,7 +29,8 @@ export function OvertimeFormDialog({ businessId, employees, defaultEmployeeId }:
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } =
     useForm<OvertimeFormData>({
-      resolver: zodResolver(overtimeSchema),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(overtimeSchema) as any,
       defaultValues: {
         employeeId: defaultEmployeeId ?? "",
         type: "EXTRA_50",

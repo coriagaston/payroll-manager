@@ -20,7 +20,8 @@ interface Props {
 export function BusinessConfigForm({ businessId, defaultValues, canEdit }: Props) {
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } =
     useForm<BusinessConfigFormData>({
-      resolver: zodResolver(businessConfigSchema),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(businessConfigSchema) as any,
       defaultValues: defaultValues ?? {
         extraRate50: 1.5,
         extraRate100: 2.0,

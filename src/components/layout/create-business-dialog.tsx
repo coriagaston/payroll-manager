@@ -24,7 +24,8 @@ export function CreateBusinessDialog() {
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<BusinessFormData>({
-    resolver: zodResolver(businessSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(businessSchema) as any,
   });
 
   const onSubmit = async (data: BusinessFormData) => {

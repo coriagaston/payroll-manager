@@ -27,7 +27,8 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<HolidayFormData>({
-    resolver: zodResolver(holidaySchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(holidaySchema) as any,
   });
 
   const onSubmit = async (data: HolidayFormData) => {

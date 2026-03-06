@@ -42,7 +42,8 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } =
     useForm<EmployeeFormData>({
-      resolver: zodResolver(employeeSchema),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      resolver: zodResolver(employeeSchema) as any,
       defaultValues: employee
         ? {
             name: employee.name,
