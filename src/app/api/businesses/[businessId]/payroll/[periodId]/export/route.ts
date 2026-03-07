@@ -36,25 +36,32 @@ export async function GET(req: NextRequest, { params }: Params) {
   const endLabel = format(period.endDate, "dd/MM/yyyy");
   const periodLabel = `${startLabel} - ${endLabel}`;
 
-  const results: PayrollResult[] = period.items.map((item) => ({
-    employeeId: item.employeeId,
-    employeeName: item.employee.name,
-    baseSalary: Number(item.baseSalary),
-    periodSalary: Number(item.periodSalary),
-    hourlyRate: Number(item.hourlyRate),
-    extra50Hours: Number(item.extra50Hours),
-    extra50Amount: Number(item.extra50Amount),
-    extra100Hours: Number(item.extra100Hours),
-    extra100Amount: Number(item.extra100Amount),
-    holidayHours: Number(item.holidayHours),
-    holidayAmount: Number(item.holidayAmount),
-    advances: Number(item.advances),
-    discounts: Number(item.discounts),
-    absences: (item.formula as Record<string, number>).absences ?? 0,
-    absenceDeduction: (item.formula as Record<string, number>).absenceDeduction ?? 0,
-    totalAmount: Number(item.totalAmount),
-    formula: item.formula as unknown as PayrollResult["formula"],
-  }));
+  const defaultRetentions = { base: 0, jubilacion: 0, obraSocial: 0, pami: 0, total: 0 };
+  const results: PayrollResult[] = period.items.map((item) => {
+    const formula = item.formula as unknown as PayrollResult["formula"];
+    return {
+      employeeId: item.employeeId,
+      employeeName: item.employee.name,
+      baseSalary: Number(item.baseSalary),
+      periodSalary: Number(item.periodSalary),
+      hourlyRate: Number(item.hourlyRate),
+      extra50Hours: Number(item.extra50Hours),
+      extra50Amount: Number(item.extra50Amount),
+      extra100Hours: Number(item.extra100Hours),
+      extra100Amount: Number(item.extra100Amount),
+      holidayHours: Number(item.holidayHours),
+      holidayAmount: Number(item.holidayAmount),
+      grossAmount: formula.grossAmount ?? (Number(item.periodSalary) + Number(item.extra50Amount) + Number(item.extra100Amount) + Number(item.holidayAmount)),
+      retentions: formula.retentions ?? defaultRetentions,
+      advances: Number(item.advances),
+      discounts: Number(item.discounts),
+      absences: formula.absences ?? 0,
+      absenceDeduction: formula.absenceDeduction ?? 0,
+      extraConcepts: formula.extraConcepts ?? [],
+      totalAmount: Number(item.totalAmount),
+      formula,
+    };
+  });
 
   const csv = generatePayrollCsv(results, periodLabel, {
     currency: period.business.currency,
