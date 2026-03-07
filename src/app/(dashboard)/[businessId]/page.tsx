@@ -95,8 +95,8 @@ export default async function BusinessDashboard({ params }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-slate-900">{business.name}</h1>
-        <p className="text-slate-500">
+        <h1 className="text-3xl font-bold text-foreground">{business.name}</h1>
+        <p className="text-muted-foreground">
           {format(now, "MMMM yyyy", { locale: es }).replace(/^\w/, (c) => c.toUpperCase())}
         </p>
       </div>
@@ -105,7 +105,7 @@ export default async function BusinessDashboard({ params }: Props) {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Empleados activos</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Empleados activos</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{business._count.employees}</div>
@@ -117,7 +117,7 @@ export default async function BusinessDashboard({ params }: Props) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               HS extras este mes
             </CardTitle>
           </CardHeader>
@@ -131,7 +131,7 @@ export default async function BusinessDashboard({ params }: Props) {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-slate-500">Liquidaciones</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Liquidaciones</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{recentPeriods.length}</div>
@@ -153,14 +153,14 @@ export default async function BusinessDashboard({ params }: Props) {
           </CardHeader>
           <CardContent>
             {recentEmployees.length === 0 ? (
-              <p className="text-sm text-slate-500">No hay empleados aún.</p>
+              <p className="text-sm text-muted-foreground">No hay empleados aún.</p>
             ) : (
               <div className="space-y-3">
                 {recentEmployees.map((emp) => (
                   <div key={emp.id} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-sm">{emp.name}</p>
-                      <p className="text-xs text-slate-500">{emp.position}</p>
+                      <p className="text-xs text-muted-foreground">{emp.position}</p>
                     </div>
                     <Badge variant="outline">{freqLabel[emp.payFrequency]}</Badge>
                   </div>
@@ -180,7 +180,7 @@ export default async function BusinessDashboard({ params }: Props) {
           </CardHeader>
           <CardContent>
             {recentPeriods.length === 0 ? (
-              <p className="text-sm text-slate-500">No hay liquidaciones aún.</p>
+              <p className="text-sm text-muted-foreground">No hay liquidaciones aún.</p>
             ) : (
               <div className="space-y-3">
                 {recentPeriods.map((period) => {
@@ -194,7 +194,7 @@ export default async function BusinessDashboard({ params }: Props) {
                         <p className="font-medium text-sm">
                           {format(period.startDate, "dd/MM")} - {format(period.endDate, "dd/MM/yyyy")}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {freqLabel[period.frequency]} · {period._count.items} empleados
                         </p>
                       </div>

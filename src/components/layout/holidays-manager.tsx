@@ -95,7 +95,7 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
         </CardHeader>
         <CardContent>
           {holidays.length === 0 ? (
-            <p className="text-sm text-slate-500">No hay feriados configurados.</p>
+            <p className="text-sm text-muted-foreground">No hay feriados configurados.</p>
           ) : (
             <div className="space-y-2">
               {holidays.map((h) => (
@@ -110,7 +110,7 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-600 dark:text-red-400"
                       onClick={() => deleteHoliday(h.id)}
                     >
                       Eliminar

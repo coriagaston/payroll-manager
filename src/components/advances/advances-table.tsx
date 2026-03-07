@@ -94,21 +94,21 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
 
       {/* Resumen */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-        <div className="bg-blue-50 border border-blue-100 rounded-lg p-3">
-          <p className="text-xs text-blue-600 font-medium">Total anticipos</p>
-          <p className="text-lg font-bold text-blue-800">{formatCurrency(totalAdvances, currency)}</p>
+        <div className="bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 rounded-lg p-3">
+          <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Total anticipos</p>
+          <p className="text-lg font-bold text-blue-800 dark:text-blue-300">{formatCurrency(totalAdvances, currency)}</p>
         </div>
-        <div className="bg-red-50 border border-red-100 rounded-lg p-3">
-          <p className="text-xs text-red-600 font-medium">Total descuentos</p>
-          <p className="text-lg font-bold text-red-800">{formatCurrency(totalDiscounts, currency)}</p>
+        <div className="bg-red-50 dark:bg-red-950/40 border border-red-100 dark:border-red-900 rounded-lg p-3">
+          <p className="text-xs text-red-600 dark:text-red-400 font-medium">Total descuentos</p>
+          <p className="text-lg font-bold text-red-600 dark:text-red-300">{formatCurrency(totalDiscounts, currency)}</p>
         </div>
-        <div className="bg-slate-50 border border-slate-200 rounded-lg p-3">
-          <p className="text-xs text-slate-600 font-medium">Registros</p>
-          <p className="text-lg font-bold text-slate-800">{filtered.length}</p>
+        <div className="bg-muted/50 border border-border rounded-lg p-3">
+          <p className="text-xs text-muted-foreground font-medium">Registros</p>
+          <p className="text-lg font-bold text-foreground">{filtered.length}</p>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -123,7 +123,7 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canEdit ? 6 : 5} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={canEdit ? 6 : 5} className="text-center py-8 text-muted-foreground">
                   No hay registros
                 </TableCell>
               </TableRow>
@@ -139,10 +139,10 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
                   <TableCell>
                     {format(new Date(adv.date + "T00:00:00"), "dd/MM/yyyy")}
                   </TableCell>
-                  <TableCell className={`text-right font-semibold ${adv.isDiscount ? "text-red-700" : "text-blue-700"}`}>
+                  <TableCell className={`text-right font-semibold ${adv.isDiscount ? "text-red-600 dark:text-red-400" : "text-blue-600 dark:text-blue-400"}`}>
                     {adv.isDiscount ? "- " : ""}{formatCurrency(adv.amount, currency)}
                   </TableCell>
-                  <TableCell className="hidden md:table-cell text-slate-500 text-sm">
+                  <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
                     {adv.note ?? "—"}
                   </TableCell>
                   {canEdit && (
@@ -150,7 +150,7 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500 hover:text-red-600 dark:text-red-400"
                         onClick={() => handleDelete(adv.id)}
                       >
                         Eliminar

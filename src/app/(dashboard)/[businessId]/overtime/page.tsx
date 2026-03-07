@@ -64,8 +64,8 @@ export default async function OvertimePage({ params, searchParams }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Horas Extras</h1>
-          <p className="text-slate-500 text-sm">
+          <h1 className="text-2xl font-bold text-foreground">Horas Extras</h1>
+          <p className="text-muted-foreground text-sm">
             {rows.length} registros · {totalHours.toFixed(1)} hs totales
           </p>
         </div>

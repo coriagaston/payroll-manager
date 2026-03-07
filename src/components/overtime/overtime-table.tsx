@@ -90,7 +90,7 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
   return (
     <div className="space-y-4">
       {/* Filtros */}
-      <div className="flex flex-wrap gap-3 items-end bg-white p-4 rounded-lg border">
+      <div className="flex flex-wrap gap-3 items-end bg-card p-4 rounded-lg border">
         <div className="space-y-1">
           <Label className="text-xs">Desde</Label>
           <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="w-40" />
@@ -122,14 +122,14 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
           { label: "Feriado", value: totals.holiday, color: "bg-red-50 border-red-200" },
         ].map((s) => (
           <div key={s.label} className={`${s.color} border rounded-lg p-3 text-center`}>
-            <p className="text-xs text-slate-500">{s.label}</p>
+            <p className="text-xs text-muted-foreground">{s.label}</p>
             <p className="text-xl font-bold">{s.value.toFixed(1)}h</p>
           </div>
         ))}
       </div>
 
       {/* Tabla */}
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -144,7 +144,7 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canEdit ? 6 : 5} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={canEdit ? 6 : 5} className="text-center py-8 text-muted-foreground">
                   No hay horas extras en este período
                 </TableCell>
               </TableRow>
@@ -161,13 +161,13 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
                       {typeLabel[row.type]}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-slate-500 max-w-xs truncate">{row.note || "—"}</TableCell>
+                  <TableCell className="text-muted-foreground max-w-xs truncate">{row.note || "—"}</TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500 hover:text-red-600 dark:text-red-400"
                         onClick={() => handleDelete(row.id)}
                       >
                         Eliminar

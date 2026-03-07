@@ -52,7 +52,7 @@ export function BusinessConfigForm({ businessId, defaultValues, canEdit }: Props
     <div className="space-y-1">
       <Label>{label}</Label>
       <Input type="number" step="0.01" disabled={!canEdit} {...register(name)} />
-      {hint && <p className="text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
       {errors[name] && <p className="text-xs text-red-500">{String(errors[name]?.message)}</p>}
     </div>
   );

@@ -55,15 +55,15 @@ export function OvertimeCsvImport({ businessId }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-slate-50 rounded-lg p-4 text-sm">
+          <div className="bg-muted/50 rounded-lg p-4 text-sm">
             <p className="font-medium mb-2">Formato requerido del CSV:</p>
-            <pre className="text-xs font-mono bg-white border rounded p-2 overflow-x-auto">
+            <pre className="text-xs font-mono bg-card border rounded p-2 overflow-x-auto">
 {`empleado_id,fecha,horas,tipo,nota
 seed-emp-01,2025-01-07,3,EXTRA_50,Cierre mes
 seed-emp-02,2025-01-13,2,EXTRA_100,Turno noche
 seed-emp-03,2025-01-01,4,HOLIDAY,Año Nuevo`}
             </pre>
-            <p className="text-slate-500 mt-2">
+            <p className="text-muted-foreground mt-2">
               Tipos válidos: <code>EXTRA_50</code>, <code>EXTRA_100</code>, <code>HOLIDAY</code>
             </p>
           </div>
@@ -88,14 +88,14 @@ seed-emp-03,2025-01-01,4,HOLIDAY,Año Nuevo`}
                 if (file) handleFile(file);
               }}
             />
-            <p className="text-slate-600">
+            <p className="text-muted-foreground">
               {loading ? "Procesando..." : "Arrastrá el archivo CSV acá o hacé click para seleccionarlo"}
             </p>
           </div>
 
           {result && (
             <div className="space-y-2">
-              <p className="text-sm font-medium text-green-700">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400">
                 ✓ {result.created} registros importados
               </p>
               {result.errors.map((err, i) => (

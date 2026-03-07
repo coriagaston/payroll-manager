@@ -79,11 +79,11 @@ export default async function PayrollDetailPage({ params }: Props) {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Link href={`/${businessId}/payroll`} className="text-sm text-slate-500 hover:text-slate-700">
+            <Link href={`/${businessId}/payroll`} className="text-sm text-muted-foreground hover:text-foreground">
               ← Liquidaciones
             </Link>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="text-2xl font-bold text-foreground">
             {format(period.startDate, "dd/MM/yyyy")} — {format(period.endDate, "dd/MM/yyyy")}
           </h1>
           <div className="flex items-center gap-2 mt-1">
@@ -91,7 +91,7 @@ export default async function PayrollDetailPage({ params }: Props) {
             <Badge variant={period.status === "FINALIZED" ? "default" : "secondary"}>
               {period.status === "FINALIZED" ? "Finalizada" : "Borrador"}
             </Badge>
-            <span className="text-sm text-slate-500">{period.items.length} empleados</span>
+            <span className="text-sm text-muted-foreground">{period.items.length} empleados</span>
           </div>
         </div>
         <Link href={`/api/businesses/${businessId}/payroll/${periodId}/export`} target="_blank">

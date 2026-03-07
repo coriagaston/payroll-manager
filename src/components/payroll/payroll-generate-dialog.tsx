@@ -101,7 +101,7 @@ export function PayrollGenerateDialog({ businessId, currency }: Props) {
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-4 items-end bg-slate-50 p-4 rounded-lg">
+          <div className="flex flex-wrap gap-4 items-end bg-muted/50 p-4 rounded-lg">
             <div className="space-y-1">
               <Label>Frecuencia de pago</Label>
               <Select
@@ -127,7 +127,7 @@ export function PayrollGenerateDialog({ businessId, currency }: Props) {
               />
             </div>
 
-            <div className="text-sm text-slate-600 bg-white border rounded-lg px-3 py-2">
+            <div className="text-sm text-muted-foreground bg-card border rounded-lg px-3 py-2">
               <span className="font-medium">Período: </span>
               {period.startDate} → {period.endDate}
             </div>

@@ -72,7 +72,7 @@ export function Sidebar({ businesses, user }: SidebarProps) {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start text-left font-normal h-auto py-2">
-              <div className="h-6 w-6 rounded bg-blue-100 text-blue-700 flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0">
+              <div className="h-6 w-6 rounded bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 flex items-center justify-center text-xs font-bold mr-2 flex-shrink-0">
                 {currentBusiness?.name.charAt(0).toUpperCase() ?? "?"}
               </div>
               <span className="truncate text-sm">{currentBusiness?.name ?? "Seleccionar"}</span>

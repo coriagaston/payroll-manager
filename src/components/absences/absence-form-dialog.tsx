@@ -88,7 +88,7 @@ export function AbsenceFormDialog({ businessId, employees }: Props) {
                 onChange={(e) => setDays(e.target.value)}
                 required
               />
-              <p className="text-xs text-slate-500">Puede ser 0.5 (medio día)</p>
+              <p className="text-xs text-muted-foreground">Puede ser 0.5 (medio día)</p>
             </div>
           </div>
           <div className="space-y-1">

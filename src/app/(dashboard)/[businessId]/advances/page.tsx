@@ -51,8 +51,8 @@ export default async function AdvancesPage({ params }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Anticipos y Descuentos</h1>
-        <p className="text-slate-500 text-sm">{rows.length} registros · Se descuentan automáticamente en la liquidación del período</p>
+        <h1 className="text-2xl font-bold text-foreground">Anticipos y Descuentos</h1>
+        <p className="text-muted-foreground text-sm">{rows.length} registros · Se descuentan automáticamente en la liquidación del período</p>
       </div>
 
       <AdvancesTable

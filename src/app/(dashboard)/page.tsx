@@ -33,8 +33,8 @@ export default async function HomePage() {
     <div className="max-w-4xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Mis Negocios</h1>
-          <p className="text-slate-500 mt-1">Seleccioná un negocio para administrar</p>
+          <h1 className="text-3xl font-bold text-foreground">Mis Negocios</h1>
+          <p className="text-muted-foreground mt-1">Seleccioná un negocio para administrar</p>
         </div>
         <CreateBusinessDialog />
       </div>
@@ -42,7 +42,7 @@ export default async function HomePage() {
       {memberships.length === 0 ? (
         <Card className="text-center py-12">
           <CardContent>
-            <p className="text-slate-500 mb-4">Todavía no tenés negocios.</p>
+            <p className="text-muted-foreground mb-4">Todavía no tenés negocios.</p>
             <CreateBusinessDialog />
           </CardContent>
         </Card>
@@ -53,7 +53,7 @@ export default async function HomePage() {
               <Link href={`/${m.business.id}`} className="flex-1">
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-lg">
+                    <div className="h-10 w-10 rounded-lg bg-blue-100 dark:bg-blue-950 flex items-center justify-center text-blue-700 dark:text-blue-300 font-bold text-lg">
                       {m.business.name.charAt(0).toUpperCase()}
                     </div>
                     <Badge variant={m.role === "OWNER" ? "default" : "secondary"}>
@@ -67,18 +67,18 @@ export default async function HomePage() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-1">
-                  <p className="text-sm text-slate-600">
+                  <p className="text-sm text-muted-foreground">
                     <span className="font-medium">{m.business._count.employees}</span>{" "}
                     empleados activos
                   </p>
                   {m.business.cuit && (
-                    <p className="text-xs text-slate-500">CUIT: {m.business.cuit}</p>
+                    <p className="text-xs text-muted-foreground">CUIT: {m.business.cuit}</p>
                   )}
                   {m.business.address && (
-                    <p className="text-xs text-slate-500 truncate">{m.business.address}</p>
+                    <p className="text-xs text-muted-foreground truncate">{m.business.address}</p>
                   )}
                   {m.business.phone && (
-                    <p className="text-xs text-slate-500">{m.business.phone}</p>
+                    <p className="text-xs text-muted-foreground">{m.business.phone}</p>
                   )}
                 </CardContent>
               </Link>

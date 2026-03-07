@@ -56,22 +56,22 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <h3 className="font-semibold text-slate-800">
+        <h3 className="font-semibold text-foreground">
           Previsualización · {startDate} → {endDate}
         </h3>
         <div className="text-right">
-          <p className="text-xs text-slate-500">Total a pagar</p>
-          <p className="text-xl font-bold text-green-700">
+          <p className="text-xs text-muted-foreground">Total a pagar</p>
+          <p className="text-xl font-bold text-green-600 dark:text-green-400">
             {formatCurrency(grandTotal, currency)}
           </p>
         </div>
       </div>
 
       {/* Sección de pagos con CBU */}
-      <div className="rounded-lg border bg-white">
-        <div className="px-4 py-3 border-b bg-slate-50 rounded-t-lg">
-          <h4 className="font-medium text-sm text-slate-700">Pagos</h4>
-          <p className="text-xs text-slate-500">Copiá el CBU para realizar cada transferencia</p>
+      <div className="rounded-lg border bg-card">
+        <div className="px-4 py-3 border-b bg-muted/50 rounded-t-lg">
+          <h4 className="font-medium text-sm text-foreground">Pagos</h4>
+          <p className="text-xs text-muted-foreground">Copiá el CBU para realizar cada transferencia</p>
         </div>
         <div className="divide-y">
           {results.map((r) => (
@@ -80,11 +80,11 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                 <p className="font-medium text-sm truncate">{r.employeeName}</p>
                 {r.cbu ? (
                   <div className="flex items-center gap-1 mt-0.5">
-                    <span className="text-xs font-mono text-slate-600">{r.cbu}</span>
+                    <span className="text-xs font-mono text-muted-foreground">{r.cbu}</span>
                     <CopyButton value={r.cbu} />
                   </div>
                 ) : (
-                  <p className="text-xs text-slate-400 mt-0.5">Sin CBU cargado</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Sin CBU cargado</p>
                 )}
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -96,7 +96,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                   businessName={businessName}
                 />
                 <div className="text-right">
-                  <p className="font-bold text-sm text-green-700">{formatCurrency(r.totalAmount, currency)}</p>
+                  <p className="font-bold text-sm text-green-600 dark:text-green-400">{formatCurrency(r.totalAmount, currency)}</p>
                   <Badge variant="outline" className="text-xs">{freqLabel[r.formula.frequency]}</Badge>
                 </div>
               </div>
@@ -106,7 +106,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
       </div>
 
       {/* Tabla resumen */}
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -136,16 +136,16 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                 <TableCell className="text-right hidden lg:table-cell text-orange-700">
                   {r.extra100Amount > 0 ? formatCurrency(r.extra100Amount, currency) : "—"}
                 </TableCell>
-                <TableCell className="text-right hidden lg:table-cell text-red-700">
+                <TableCell className="text-right hidden lg:table-cell text-red-600 dark:text-red-400">
                   {r.holidayAmount > 0 ? formatCurrency(r.holidayAmount, currency) : "—"}
                 </TableCell>
-                <TableCell className="text-right hidden md:table-cell text-blue-700">
+                <TableCell className="text-right hidden md:table-cell text-blue-600 dark:text-blue-400">
                   {r.advances > 0 ? `- ${formatCurrency(r.advances, currency)}` : "—"}
                 </TableCell>
-                <TableCell className="text-right hidden md:table-cell text-red-700">
+                <TableCell className="text-right hidden md:table-cell text-red-600 dark:text-red-400">
                   {r.discounts > 0 ? `- ${formatCurrency(r.discounts, currency)}` : "—"}
                 </TableCell>
-                <TableCell className="text-right hidden md:table-cell text-red-700">
+                <TableCell className="text-right hidden md:table-cell text-red-600 dark:text-red-400">
                   {r.absenceDeduction > 0 ? `- ${formatCurrency(r.absenceDeduction, currency)}` : "—"}
                 </TableCell>
                 <TableCell className="text-right font-bold">
@@ -158,7 +158,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
       </div>
 
       {/* Detalle por empleado (expandible) */}
-      <h4 className="font-medium text-sm text-slate-700">Detalle de fórmulas por empleado</h4>
+      <h4 className="font-medium text-sm text-foreground">Detalle de fórmulas por empleado</h4>
       <Accordion type="multiple">
         {results.map((r) => (
           <AccordionItem key={r.employeeId} value={r.employeeId}>
@@ -166,7 +166,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
               {r.employeeName} — {formatCurrency(r.totalAmount, currency)}
             </AccordionTrigger>
             <AccordionContent>
-              <div className="bg-slate-50 rounded p-3 text-sm space-y-2 font-mono">
+              <div className="bg-muted/50 rounded p-3 text-sm space-y-2 font-mono">
                 <p>Sueldo base: {formatCurrency(r.formula.baseSalary, currency)}</p>
                 <p>Período: {r.formula.periodDays} días de {r.formula.calendarDays}</p>
                 <p>Sueldo período: {formatCurrency(r.formula.periodSalary, currency)}</p>
@@ -190,7 +190,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                   {r.formula.advances > 0 ? ` - ${formatCurrency(r.formula.advances, currency)}` : ""}
                   {r.formula.discounts > 0 ? ` - ${formatCurrency(r.formula.discounts, currency)}` : ""}
                   {r.formula.absenceDeduction > 0 ? ` - ${formatCurrency(r.formula.absenceDeduction, currency)}` : ""}
-                  {" = "}<span className="text-green-700">{formatCurrency(r.totalAmount, currency)}</span>
+                  {" = "}<span className="text-green-600 dark:text-green-400">{formatCurrency(r.totalAmount, currency)}</span>
                 </p>
               </div>
             </AccordionContent>

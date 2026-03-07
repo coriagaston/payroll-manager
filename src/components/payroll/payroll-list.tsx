@@ -227,7 +227,7 @@ export function PayrollList({ rows, businessId, currency }: Props) {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-500 hover:text-red-700"
+                      className="text-red-500 hover:text-red-600 dark:text-red-400"
                       onClick={() => handleDelete(row.id)}
                     >
                       Eliminar

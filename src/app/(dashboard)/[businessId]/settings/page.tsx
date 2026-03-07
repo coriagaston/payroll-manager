@@ -58,8 +58,8 @@ export default async function SettingsPage({ params }: Props) {
   return (
     <div className="max-w-3xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Configuración</h1>
-        <p className="text-slate-500 text-sm">{business.name}</p>
+        <h1 className="text-2xl font-bold text-foreground">Configuración</h1>
+        <p className="text-muted-foreground text-sm">{business.name}</p>
       </div>
 
       <Tabs defaultValue="config">

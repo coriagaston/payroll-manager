@@ -187,7 +187,7 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
                 {...register("hourlyRate")}
                 placeholder="Auto (basado en config)"
               />
-              <p className="text-xs text-slate-500">Vacío = calculado automáticamente</p>
+              <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
             </div>
 
             {mode === "edit" && (
@@ -218,15 +218,15 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
             <TabsContent value="historial">
               <div className="space-y-2 pt-2">
                 {salaryHistory.length === 0 ? (
-                  <p className="text-sm text-slate-500 py-4 text-center">Sin cambios registrados</p>
+                  <p className="text-sm text-muted-foreground py-4 text-center">Sin cambios registrados</p>
                 ) : (
                   salaryHistory.map((h) => (
-                    <div key={h.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-slate-50 text-sm">
+                    <div key={h.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 text-sm">
                       <div>
                         <p className="font-medium">{formatCurrency(Number(h.salary))}</p>
-                        {h.note && <p className="text-xs text-slate-500">{h.note}</p>}
+                        {h.note && <p className="text-xs text-muted-foreground">{h.note}</p>}
                       </div>
-                      <p className="text-xs text-slate-500">
+                      <p className="text-xs text-muted-foreground">
                         {format(new Date(h.validFrom), "dd/MM/yyyy")}
                       </p>
                     </div>
@@ -300,7 +300,7 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
                 {...register("hourlyRate")}
                 placeholder="Auto (basado en config)"
               />
-              <p className="text-xs text-slate-500">Vacío = calculado automáticamente</p>
+              <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
             </div>
           </div>
 

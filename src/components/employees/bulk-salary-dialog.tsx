@@ -58,7 +58,7 @@ export function BulkSalaryDialog({ businessId }: Props) {
           <DialogTitle>Actualizar sueldos en %</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Aplica el aumento a <strong>todos los empleados activos</strong> del negocio.
           </p>
           <div className="space-y-1">
@@ -75,10 +75,10 @@ export function BulkSalaryDialog({ businessId }: Props) {
                 onChange={(e) => setPercent(e.target.value)}
                 className="max-w-[120px]"
               />
-              <span className="text-sm text-slate-600">%</span>
+              <span className="text-sm text-muted-foreground">%</span>
             </div>
             {percent && !isNaN(parseFloat(percent)) && (
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-muted-foreground">
                 Ej: sueldo de $1.000.000 → ${(1000000 * (1 + parseFloat(percent) / 100)).toLocaleString("es-AR")}
               </p>
             )}

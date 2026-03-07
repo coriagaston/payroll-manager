@@ -53,12 +53,12 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-xs"
         />
-        <div className="ml-auto text-sm text-slate-600">
+        <div className="ml-auto text-sm text-muted-foreground">
           Total: <span className="font-semibold">{totalDays} días</span>
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white overflow-x-auto">
+      <div className="rounded-lg border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -72,7 +72,7 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={canEdit ? 5 : 4} className="text-center py-8 text-slate-500">
+                <TableCell colSpan={canEdit ? 5 : 4} className="text-center py-8 text-muted-foreground">
                   No hay ausencias registradas
                 </TableCell>
               </TableRow>
@@ -82,13 +82,13 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
                   <TableCell className="font-medium">{a.employee.name}</TableCell>
                   <TableCell>{format(new Date(a.date + "T00:00:00"), "dd/MM/yyyy")}</TableCell>
                   <TableCell className="text-right font-semibold">{a.days}</TableCell>
-                  <TableCell className="hidden md:table-cell text-slate-500 text-sm">{a.note ?? "—"}</TableCell>
+                  <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{a.note ?? "—"}</TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="text-red-500 hover:text-red-700"
+                        className="text-red-500 hover:text-red-600 dark:text-red-400"
                         onClick={() => handleDelete(a.id)}
                       >
                         Eliminar

@@ -49,8 +49,8 @@ export default async function AbsencesPage({ params }: Props) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Inasistencias</h1>
-          <p className="text-slate-500 text-sm">
+          <h1 className="text-2xl font-bold text-foreground">Inasistencias</h1>
+          <p className="text-muted-foreground text-sm">
             {absences.length} registros · {totalDays} días en total
           </p>
         </div>
