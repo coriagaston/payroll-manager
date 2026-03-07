@@ -368,6 +368,49 @@ export function getMonthlyPeriod(dateStr: string): PayrollPeriod {
   };
 }
 
+// ─── SAC (AGUINALDO) ─────────────────────────────────────────────────────────
+
+/**
+ * Calcula el SAC (Aguinaldo) según Ley 20.744 Art. 121-122.
+ * Monto = mejor remuneración mensual del semestre / 2.
+ * Simplificado: usamos el salario base actual / 2.
+ */
+export function calculateSAC(baseSalary: number): number {
+  return baseSalary / 2;
+}
+
+// ─── VACACIONES (Ley 20.744) ──────────────────────────────────────────────────
+
+/**
+ * Calcula los días de vacaciones según antigüedad (Art. 150).
+ * < 5 años: 14 días
+ * 5-9 años: 21 días
+ * 10-19 años: 28 días
+ * 20+ años: 35 días
+ */
+export function calculateVacationDays(startDate: string, referenceDate: string): number {
+  const start = parseLocalDate(startDate);
+  const ref = parseLocalDate(referenceDate);
+  const years = (ref.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
+  if (years < 5) return 14;
+  if (years < 10) return 21;
+  if (years < 20) return 28;
+  return 35;
+}
+
+/**
+ * Calcula el pago vacacional (Art. 155).
+ * Valor día = baseSalary / 25
+ * Total = valorDía × días
+ */
+export function calculateVacationPayment(
+  baseSalary: number,
+  vacationDays: number
+): { dailyRate: number; totalAmount: number } {
+  const dailyRate = baseSalary / 25;
+  return { dailyRate, totalAmount: dailyRate * vacationDays };
+}
+
 // ─── FORMATO MONEDA ───────────────────────────────────────────────────────────
 
 export function formatCurrency(amount: number, currency = "ARS"): string {

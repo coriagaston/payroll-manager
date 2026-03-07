@@ -1,10 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
@@ -16,6 +21,7 @@ interface PayrollRow {
   startDate: string;
   endDate: string;
   frequency: string;
+  type: string;
   status: string;
   employeeCount: number;
   totalAmount: number;
@@ -33,8 +39,34 @@ const freqLabel: Record<string, string> = {
   MONTHLY: "Mensual",
 };
 
+const typeLabel: Record<string, string> = {
+  REGULAR: "",
+  SAC: "SAC",
+  VACATION: "Vacaciones",
+};
+
 export function PayrollList({ rows, businessId, currency }: Props) {
   const router = useRouter();
+  const [statusFilter, setStatusFilter] = useState("ALL");
+  const [freqFilter, setFreqFilter] = useState("ALL");
+  const [typeFilter, setTypeFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    return rows.filter((r) => {
+      if (statusFilter !== "ALL" && r.status !== statusFilter) return false;
+      if (freqFilter !== "ALL" && r.frequency !== freqFilter) return false;
+      if (typeFilter !== "ALL" && r.type !== typeFilter) return false;
+      if (search) {
+        const dateStr =
+          format(new Date(r.startDate + "T00:00:00"), "dd/MM/yyyy") +
+          " " +
+          format(new Date(r.endDate + "T00:00:00"), "dd/MM/yyyy");
+        if (!dateStr.includes(search)) return false;
+      }
+      return true;
+    });
+  }, [rows, statusFilter, freqFilter, search]);
 
   const handleExport = (periodId: string) => {
     window.open(`/api/businesses/${businessId}/payroll/${periodId}/export`, "_blank");
@@ -74,15 +106,63 @@ export function PayrollList({ rows, businessId, currency }: Props) {
 
   if (rows.length === 0) {
     return (
-      <div className="text-center py-16 bg-white rounded-lg border">
-        <p className="text-slate-500">No hay liquidaciones generadas aún.</p>
-        <p className="text-slate-400 text-sm mt-1">Usá el botón "Nueva liquidación" para comenzar.</p>
+      <div className="text-center py-16 bg-card rounded-lg border">
+        <p className="text-muted-foreground">No hay liquidaciones generadas aún.</p>
+        <p className="text-muted-foreground text-sm mt-1">Usá el botón "Nueva liquidación" para comenzar.</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border bg-white overflow-x-auto">
+    <div className="space-y-3">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        <Input
+          placeholder="Buscar por fecha..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-48"
+        />
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Todos los estados</SelectItem>
+            <SelectItem value="DRAFT">Borrador</SelectItem>
+            <SelectItem value="FINALIZED">Finalizada</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={freqFilter} onValueChange={setFreqFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Todas las frecuencias</SelectItem>
+            <SelectItem value="WEEKLY">Semanal</SelectItem>
+            <SelectItem value="BIWEEKLY">Quincenal</SelectItem>
+            <SelectItem value="MONTHLY">Mensual</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={typeFilter} onValueChange={setTypeFilter}>
+          <SelectTrigger className="w-36">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">Todos los tipos</SelectItem>
+            <SelectItem value="REGULAR">Regular</SelectItem>
+            <SelectItem value="SAC">SAC</SelectItem>
+            <SelectItem value="VACATION">Vacaciones</SelectItem>
+          </SelectContent>
+        </Select>
+        {filtered.length !== rows.length && (
+          <span className="text-sm text-muted-foreground self-center">
+            {filtered.length} de {rows.length}
+          </span>
+        )}
+      </div>
+
+      <div className="rounded-lg border bg-card overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -95,15 +175,25 @@ export function PayrollList({ rows, businessId, currency }: Props) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {rows.map((row) => (
+          {filtered.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                Sin resultados para los filtros aplicados
+              </TableCell>
+            </TableRow>
+          ) : filtered.map((row) => (
             <TableRow key={row.id}>
               <TableCell className="font-medium">
                 {format(new Date(row.startDate + "T00:00:00"), "dd/MM/yyyy")}
                 {" → "}
                 {format(new Date(row.endDate + "T00:00:00"), "dd/MM/yyyy")}
               </TableCell>
-              <TableCell>
-                <Badge variant="outline">{freqLabel[row.frequency]}</Badge>
+              <TableCell className="space-x-1">
+                {row.type !== "REGULAR" ? (
+                  <Badge variant="secondary">{typeLabel[row.type] ?? row.type}</Badge>
+                ) : (
+                  <Badge variant="outline">{freqLabel[row.frequency]}</Badge>
+                )}
               </TableCell>
               <TableCell>{row.employeeCount}</TableCell>
               <TableCell className="text-right font-semibold">
@@ -149,6 +239,7 @@ export function PayrollList({ rows, businessId, currency }: Props) {
           ))}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

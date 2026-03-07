@@ -27,7 +27,7 @@ export default async function DashboardLayout({
   const user = { name: session.user.name ?? "", email: session.user.email ?? "" };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-slate-50">
+    <div className="flex h-screen overflow-hidden bg-background">
       <div className="hidden md:block h-full">
         <Sidebar businesses={mappedBusinesses} user={user} />
       </div>

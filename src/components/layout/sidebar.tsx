@@ -56,19 +56,19 @@ export function Sidebar({ businesses, user }: SidebarProps) {
 
   return (
     <>
-    <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
+    <aside className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col">
       {/* Logo */}
-      <div className="p-4 border-b border-slate-200">
+      <div className="p-4 border-b border-sidebar-border">
         <Link href="/" className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
             <span className="text-white font-bold text-sm">P</span>
           </div>
-          <span className="font-bold text-slate-900">PayrollManager</span>
+          <span className="font-bold text-sidebar-foreground">PayrollManager</span>
         </Link>
       </div>
 
       {/* Selector de negocio */}
-      <div className="p-3 border-b border-slate-100">
+      <div className="p-3 border-b border-sidebar-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start text-left font-normal h-auto py-2">
@@ -76,7 +76,7 @@ export function Sidebar({ businesses, user }: SidebarProps) {
                 {currentBusiness?.name.charAt(0).toUpperCase() ?? "?"}
               </div>
               <span className="truncate text-sm">{currentBusiness?.name ?? "Seleccionar"}</span>
-              <span className="ml-auto text-slate-400">▾</span>
+              <span className="ml-auto text-muted-foreground">▾</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
@@ -109,8 +109,8 @@ export function Sidebar({ businesses, user }: SidebarProps) {
                 className={cn(
                   "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
                   isActive
-                    ? "bg-blue-50 text-blue-700 font-medium"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                    ? "bg-blue-50 text-blue-700 font-medium dark:bg-blue-950 dark:text-blue-300"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <span>{item.icon}</span>
@@ -121,16 +121,16 @@ export function Sidebar({ businesses, user }: SidebarProps) {
       </nav>
 
       {/* User */}
-      <div className="p-3 border-t border-slate-200">
+      <div className="p-3 border-t border-sidebar-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="w-full justify-start h-auto py-2">
               <Avatar className="h-7 w-7 mr-2">
-                <AvatarFallback className="text-xs bg-slate-200">{initials}</AvatarFallback>
+                <AvatarFallback className="text-xs bg-muted">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col items-start">
                 <span className="text-sm font-medium truncate max-w-[140px]">{user.name}</span>
-                <span className="text-xs text-slate-500 truncate max-w-[140px]">{user.email}</span>
+                <span className="text-xs text-muted-foreground truncate max-w-[140px]">{user.email}</span>
               </div>
             </Button>
           </DropdownMenuTrigger>

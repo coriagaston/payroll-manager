@@ -259,6 +259,7 @@ model PayrollPeriod {
   startDate  DateTime     @db.Date
   endDate    DateTime     @db.Date
   frequency  PayFrequency
+  type       PeriodType   @default(REGULAR)
   status     PeriodStatus @default(DRAFT)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
@@ -266,6 +267,12 @@ model PayrollPeriod {
 
   @@index([businessId])
   @@index([businessId, status])
+}
+
+enum PeriodType {
+  REGULAR
+  SAC
+  VACATION
 }
 
 enum PeriodStatus {
