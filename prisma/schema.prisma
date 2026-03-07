@@ -158,8 +158,9 @@ model Employee {
   baseSalary   Decimal        @db.Decimal(12, 2)
   payFrequency PayFrequency
   hourlyRate   Decimal?       @db.Decimal(10, 4) // null = calculado automáticamente
-  dailyHours   Int            @default(8)
-  status       EmployeeStatus @default(ACTIVE)
+  dailyHours      Int            @default(8)
+  status          EmployeeStatus @default(ACTIVE)
+  employmentType  EmploymentType @default(FORMAL)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   overtimes      Overtime[]
@@ -194,6 +195,11 @@ enum PayFrequency {
 enum EmployeeStatus {
   ACTIVE
   INACTIVE
+}
+
+enum EmploymentType {
+  FORMAL
+  INFORMAL
 }
 
 // ─── OVERTIME ──────────────────────────────────────────────────────────────

@@ -267,7 +267,10 @@ export function calculateEmployeePayroll(
 
   // 6. Remuneración bruta y retenciones
   const grossAmount = periodSalary + totalOvertimeAmount - absenceDeduction;
-  const retentions = calculateRetentions(grossAmount, config);
+  const isFormal = employee.employmentType !== "INFORMAL";
+  const retentions = isFormal
+    ? calculateRetentions(grossAmount, config)
+    : { base: grossAmount, jubilacion: 0, obraSocial: 0, pami: 0, total: 0 };
 
   // 7. Neto final
   const totalAmount = grossAmount - retentions.total - totalAdvances - totalDiscounts;

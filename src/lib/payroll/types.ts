@@ -2,6 +2,7 @@ export type PayFrequency = "WEEKLY" | "BIWEEKLY" | "MONTHLY";
 export type OvertimeType = "EXTRA_50" | "EXTRA_100" | "HOLIDAY";
 export type HourlyFormulaType = "MONTHLY_200" | "DAILY_HOURS";
 export type ConceptType = "EARNING" | "DEDUCTION";
+export type EmploymentType = "FORMAL" | "INFORMAL";
 
 export interface PayrollConfig {
   extraRate50: number;
@@ -51,6 +52,7 @@ export interface EmployeePayrollInput {
   hourlyRate: number | null;
   dailyHours: number;
   cbu?: string | null;
+  employmentType?: EmploymentType;
   overtimes: OvertimeEntry[];
   advances: AdvanceEntry[];
   absences: AbsenceEntry[];

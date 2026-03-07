@@ -112,6 +112,7 @@ export async function POST(req: NextRequest, { params }: Params) {
     payFrequency: emp.payFrequency,
     hourlyRate: emp.hourlyRate ? Number(emp.hourlyRate) : null,
     dailyHours: emp.dailyHours,
+    employmentType: emp.employmentType,
     overtimes: emp.overtimes.map((ot) => ({
       date: ot.date.toISOString().split("T")[0],
       hours: Number(ot.hours),

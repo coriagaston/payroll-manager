@@ -12,6 +12,7 @@ export const employeeSchema = z.object({
   hourlyRate: z.coerce.number().positive().optional().nullable(),
   dailyHours: z.coerce.number().int().min(1).max(24).default(8),
   status: z.enum(["ACTIVE", "INACTIVE"]).default("ACTIVE"),
+  employmentType: z.enum(["FORMAL", "INFORMAL"]).default("FORMAL"),
 });
 
 export type EmployeeFormData = z.infer<typeof employeeSchema>;

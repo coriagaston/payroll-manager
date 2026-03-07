@@ -40,6 +40,7 @@ interface Employee {
   hourlyRate?: number | null;
   dailyHours: number;
   status: string;
+  employmentType: string;
 }
 
 interface Props {
@@ -79,11 +80,13 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
             hourlyRate: employee.hourlyRate ?? undefined,
             dailyHours: employee.dailyHours,
             status: employee.status as EmployeeFormData["status"],
+            employmentType: employee.employmentType as EmployeeFormData["employmentType"],
           }
         : {
             dailyHours: 8,
             status: "ACTIVE",
             payFrequency: "MONTHLY",
+            employmentType: "FORMAL",
           },
     });
 
@@ -195,6 +198,20 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
                 placeholder="Auto (basado en config)"
               />
               <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
+            </div>
+
+            <div className="col-span-2 space-y-1">
+              <Label>Modalidad de contratación</Label>
+              <Select
+                value={watch("employmentType")}
+                onValueChange={(v) => setValue("employmentType", v as EmployeeFormData["employmentType"])}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FORMAL">En blanco — retenciones legales (jubilación, obra social, PAMI)</SelectItem>
+                  <SelectItem value="INFORMAL">En negro — solo sueldo y horas extras, sin retenciones</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {mode === "edit" && (
@@ -313,6 +330,20 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
                 placeholder="Auto (basado en config)"
               />
               <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
+            </div>
+
+            <div className="col-span-2 space-y-1">
+              <Label>Modalidad de contratación</Label>
+              <Select
+                value={watch("employmentType")}
+                onValueChange={(v) => setValue("employmentType", v as EmployeeFormData["employmentType"])}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="FORMAL">En blanco — retenciones legales (jubilación, obra social, PAMI)</SelectItem>
+                  <SelectItem value="INFORMAL">En negro — solo sueldo y horas extras, sin retenciones</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
