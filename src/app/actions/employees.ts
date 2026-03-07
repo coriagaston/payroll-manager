@@ -39,6 +39,19 @@ export async function updateEmployee(
 
   const validated = employeeSchema.parse(data);
 
+  // Si cambia el sueldo, registrar en historial
+  const current = await prisma.employee.findFirst({ where: { id: employeeId, businessId }, select: { baseSalary: true } });
+  if (current && Number(current.baseSalary) !== validated.baseSalary) {
+    await prisma.employeeSalaryHistory.create({
+      data: {
+        employeeId,
+        salary: validated.baseSalary,
+        validFrom: new Date(),
+        note: "Actualización manual",
+      },
+    });
+  }
+
   await prisma.employee.updateMany({
     where: { id: employeeId, businessId },
     data: {

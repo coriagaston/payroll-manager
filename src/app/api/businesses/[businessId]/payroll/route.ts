@@ -71,14 +71,13 @@ export async function POST(req: NextRequest, { params }: Params) {
       },
       include: {
         overtimes: {
-          where: {
-            date: { gte: new Date(startDate), lte: new Date(endDate) },
-          },
+          where: { date: { gte: new Date(startDate), lte: new Date(endDate) } },
         },
         advances: {
-          where: {
-            date: { gte: new Date(startDate), lte: new Date(endDate) },
-          },
+          where: { date: { gte: new Date(startDate), lte: new Date(endDate) } },
+        },
+        absences: {
+          where: { date: { gte: new Date(startDate), lte: new Date(endDate) } },
         },
       },
     }),
@@ -120,6 +119,11 @@ export async function POST(req: NextRequest, { params }: Params) {
       amount: Number(adv.amount),
       isDiscount: adv.isDiscount,
       note: adv.note ?? "",
+    })),
+    absences: emp.absences.map((ab) => ({
+      date: ab.date.toISOString().split("T")[0],
+      days: Number(ab.days),
+      note: ab.note ?? "",
     })),
   }));
 

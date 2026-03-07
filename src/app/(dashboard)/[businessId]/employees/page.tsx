@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { EmployeesTable } from "@/components/employees/employees-table";
 import { EmployeeFormDialog } from "@/components/employees/employee-form-dialog";
+import { BulkSalaryDialog } from "@/components/employees/bulk-salary-dialog";
 import { format } from "date-fns";
 
 interface Props { params: Promise<{ businessId: string }> }
@@ -47,7 +48,12 @@ export default async function EmployeesPage({ params }: Props) {
             {inactiveCount} inactivos
           </p>
         </div>
-        {canEdit && <EmployeeFormDialog businessId={businessId} mode="create" />}
+        {canEdit && (
+          <div className="flex gap-2">
+            <BulkSalaryDialog businessId={businessId} />
+            <EmployeeFormDialog businessId={businessId} mode="create" />
+          </div>
+        )}
       </div>
 
       <EmployeesTable

@@ -50,6 +50,8 @@ export async function GET(req: NextRequest, { params }: Params) {
     holidayAmount: Number(item.holidayAmount),
     advances: Number(item.advances),
     discounts: Number(item.discounts),
+    absences: (item.formula as Record<string, number>).absences ?? 0,
+    absenceDeduction: (item.formula as Record<string, number>).absenceDeduction ?? 0,
     totalAmount: Number(item.totalAmount),
     formula: item.formula as unknown as PayrollResult["formula"],
   }));

@@ -10,6 +10,7 @@ import type {
   PayrollConfig,
   OvertimeEntry,
   AdvanceEntry,
+  AbsenceEntry,
   EmployeePayrollInput,
   PayrollPeriod,
   PayrollResult,
@@ -184,6 +185,26 @@ export function calculateAdvancesAndDiscounts(
   );
 }
 
+// ─── CÁLCULO DE AUSENCIAS ─────────────────────────────────────────────────────
+
+/**
+ * Calcula el descuento por inasistencias dentro del período.
+ * Fórmula: (periodSalary / periodDays) × díasAusentes
+ */
+export function calculateAbsenceDeduction(
+  absences: AbsenceEntry[],
+  period: PayrollPeriod,
+  periodSalary: number,
+  periodDays: number
+): { totalAbsenceDays: number; deduction: number } {
+  const filtered = absences.filter(
+    (a) => a.date >= period.startDate && a.date <= period.endDate
+  );
+  const totalAbsenceDays = filtered.reduce((s, a) => s + a.days, 0);
+  const dailyRate = periodDays > 0 ? periodSalary / periodDays : 0;
+  return { totalAbsenceDays, deduction: totalAbsenceDays * dailyRate };
+}
+
 // ─── CALCULADOR PRINCIPAL ──────────────────────────────────────────────────────
 
 /**
@@ -235,10 +256,18 @@ export function calculateEmployeePayroll(
     period
   );
 
-  // 5. Total final
-  const totalAmount = periodSalary + totalOvertimeAmount - totalAdvances - totalDiscounts;
+  // 5. Ausencias
+  const { totalAbsenceDays, deduction: absenceDeduction } = calculateAbsenceDeduction(
+    employee.absences,
+    period,
+    periodSalary,
+    periodDays
+  );
 
-  // 6. Fórmula para transparencia
+  // 6. Total final
+  const totalAmount = periodSalary + totalOvertimeAmount - totalAdvances - totalDiscounts - absenceDeduction;
+
+  // 7. Fórmula para transparencia
   const formula: PayrollFormula = {
     baseSalary: employee.baseSalary,
     frequency: employee.payFrequency,
@@ -251,6 +280,8 @@ export function calculateEmployeePayroll(
     totalOvertimeAmount,
     advances: totalAdvances,
     discounts: totalDiscounts,
+    absences: totalAbsenceDays,
+    absenceDeduction,
     totalAmount,
   };
 
@@ -268,6 +299,8 @@ export function calculateEmployeePayroll(
     holidayAmount: holiday?.amount ?? 0,
     advances: totalAdvances,
     discounts: totalDiscounts,
+    absences: totalAbsenceDays,
+    absenceDeduction,
     totalAmount,
     formula,
   };

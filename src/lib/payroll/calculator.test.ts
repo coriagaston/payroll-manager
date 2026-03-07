@@ -282,6 +282,7 @@ describe("calculateEmployeePayroll - ANA (MENSUAL)", () => {
       { date: "2025-01-01", hours: 4, type: "HOLIDAY", note: "Año Nuevo" },
     ],
     advances: [],
+    absences: [],
   };
 
   it("sueldo período = 800000 (mes completo)", () => {
@@ -338,6 +339,7 @@ describe("calculateEmployeePayroll - CARLOS (QUINCENAL)", () => {
     advances: [
       { date: "2025-01-10", amount: 50000, isDiscount: false, note: "Anticipo" },
     ],
+    absences: [],
   };
 
   const hourlyRate = 600000 / 200; // 3000
@@ -397,6 +399,7 @@ describe("calculateEmployeePayroll - MARÍA (SEMANAL)", () => {
     advances: [
       { date: "2025-01-08", amount: 30000, isDiscount: true, note: "Descuento uniforme" },
     ],
+    absences: [],
   };
 
   const weeklyBase = (500000 * 12) / 52;
@@ -445,6 +448,7 @@ describe("Casos borde", () => {
       dailyHours: 8,
       overtimes: [],
       advances: [],
+      absences: [],
     };
     const period = getMonthlyPeriod("2025-01-15");
     const result = calculateEmployeePayroll(emp, period, defaultConfig);
@@ -461,6 +465,7 @@ describe("Casos borde", () => {
       dailyHours: 8,
       overtimes: [{ date: "2025-01-07", hours: 2, type: "EXTRA_50", note: "" }],
       advances: [],
+      absences: [],
     };
     const period = getMonthlyPeriod("2025-01-15");
     const result = calculateEmployeePayroll(emp, period, defaultConfig);
@@ -480,6 +485,7 @@ describe("Casos borde", () => {
         { date: "2025-01-20", hours: 10, type: "EXTRA_50", note: "" }, // segunda quincena
       ],
       advances: [],
+      absences: [],
     };
     const period = getBiweeklyPeriod("2025-01-10"); // primera quincena
     const result = calculateEmployeePayroll(emp, period, defaultConfig);

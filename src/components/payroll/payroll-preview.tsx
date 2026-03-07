@@ -13,12 +13,14 @@ import {
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { PayrollPdfButton } from "./payroll-pdf-button";
 
 interface Props {
   results: PayrollResult[];
   currency: string;
   startDate: string;
   endDate: string;
+  businessName?: string;
 }
 
 const freqLabel: Record<string, string> = {
@@ -48,7 +50,7 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-export function PayrollPreview({ results, currency, startDate, endDate }: Props) {
+export function PayrollPreview({ results, currency, startDate, endDate, businessName = "" }: Props) {
   const grandTotal = results.reduce((s, r) => s + r.totalAmount, 0);
 
   return (
@@ -85,9 +87,18 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
                   <p className="text-xs text-slate-400 mt-0.5">Sin CBU cargado</p>
                 )}
               </div>
-              <div className="text-right flex-shrink-0">
-                <p className="font-bold text-sm text-green-700">{formatCurrency(r.totalAmount, currency)}</p>
-                <Badge variant="outline" className="text-xs">{freqLabel[r.formula.frequency]}</Badge>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <PayrollPdfButton
+                  result={r}
+                  currency={currency}
+                  startDate={startDate}
+                  endDate={endDate}
+                  businessName={businessName}
+                />
+                <div className="text-right">
+                  <p className="font-bold text-sm text-green-700">{formatCurrency(r.totalAmount, currency)}</p>
+                  <Badge variant="outline" className="text-xs">{freqLabel[r.formula.frequency]}</Badge>
+                </div>
               </div>
             </div>
           ))}
@@ -107,6 +118,7 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
               <TableHead className="text-right hidden lg:table-cell">Feriado</TableHead>
               <TableHead className="text-right hidden md:table-cell">Anticipos</TableHead>
               <TableHead className="text-right hidden md:table-cell">Descuentos</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Inasist.</TableHead>
               <TableHead className="text-right font-bold">TOTAL</TableHead>
             </TableRow>
           </TableHeader>
@@ -132,6 +144,9 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
                 </TableCell>
                 <TableCell className="text-right hidden md:table-cell text-red-700">
                   {r.discounts > 0 ? `- ${formatCurrency(r.discounts, currency)}` : "—"}
+                </TableCell>
+                <TableCell className="text-right hidden md:table-cell text-red-700">
+                  {r.absenceDeduction > 0 ? `- ${formatCurrency(r.absenceDeduction, currency)}` : "—"}
                 </TableCell>
                 <TableCell className="text-right font-bold">
                   {formatCurrency(r.totalAmount, currency)}
@@ -167,10 +182,14 @@ export function PayrollPreview({ results, currency, startDate, endDate }: Props)
                 <hr />
                 {r.formula.advances > 0 && <p>Anticipos: - {formatCurrency(r.formula.advances, currency)}</p>}
                 {r.formula.discounts > 0 && <p>Descuentos: - {formatCurrency(r.formula.discounts, currency)}</p>}
+                {r.formula.absences > 0 && (
+                  <p>Inasistencias: {r.formula.absences} día(s) = - {formatCurrency(r.formula.absenceDeduction, currency)}</p>
+                )}
                 <p className="font-bold">
                   TOTAL = {formatCurrency(r.periodSalary, currency)} + {formatCurrency(r.formula.totalOvertimeAmount, currency)}
                   {r.formula.advances > 0 ? ` - ${formatCurrency(r.formula.advances, currency)}` : ""}
                   {r.formula.discounts > 0 ? ` - ${formatCurrency(r.formula.discounts, currency)}` : ""}
+                  {r.formula.absenceDeduction > 0 ? ` - ${formatCurrency(r.formula.absenceDeduction, currency)}` : ""}
                   {" = "}<span className="text-green-700">{formatCurrency(r.totalAmount, currency)}</span>
                 </p>
               </div>

@@ -26,6 +26,12 @@ export interface AdvanceEntry {
   note?: string;
 }
 
+export interface AbsenceEntry {
+  date: string; // YYYY-MM-DD
+  days: number;
+  note?: string;
+}
+
 export interface EmployeePayrollInput {
   id: string;
   name: string;
@@ -36,6 +42,7 @@ export interface EmployeePayrollInput {
   cbu?: string | null;
   overtimes: OvertimeEntry[];
   advances: AdvanceEntry[];
+  absences: AbsenceEntry[];
 }
 
 export interface PayrollPeriod {
@@ -64,6 +71,8 @@ export interface PayrollFormula {
   totalOvertimeAmount: number;
   advances: number;
   discounts: number;
+  absences: number;       // días ausentes en el período
+  absenceDeduction: number; // monto descontado
   totalAmount: number;
 }
 
@@ -81,6 +90,8 @@ export interface PayrollResult {
   holidayAmount: number;
   advances: number;
   discounts: number;
+  absences: number;
+  absenceDeduction: number;
   totalAmount: number;
   formula: PayrollFormula;
   cbu?: string | null;

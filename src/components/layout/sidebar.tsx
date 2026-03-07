@@ -32,6 +32,7 @@ const navItems = (businessId: string) => [
   { label: "Empleados", href: `/${businessId}/employees`, icon: "👥" },
   { label: "Horas Extras", href: `/${businessId}/overtime`, icon: "⏱" },
   { label: "Anticipos", href: `/${businessId}/advances`, icon: "💵" },
+  { label: "Inasistencias", href: `/${businessId}/absences`, icon: "📋" },
   { label: "Liquidaciones", href: `/${businessId}/payroll`, icon: "💰" },
   { label: "Configuración", href: `/${businessId}/settings`, icon: "⚙" },
 ];

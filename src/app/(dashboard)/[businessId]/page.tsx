@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format, startOfMonth, endOfMonth } from "date-fns";
 import { es } from "date-fns/locale";
+import { PayrollChart } from "@/components/dashboard/payroll-chart";
 
 interface Props { params: Promise<{ businessId: string }> }
 
@@ -22,7 +23,7 @@ export default async function BusinessDashboard({ params }: Props) {
   const monthEnd = endOfMonth(now);
 
   // Ejecutar todas las queries en paralelo
-  const [membership, business, overtimeSummary, recentPeriods, recentEmployees] = await Promise.all([
+  const [membership, business, overtimeSummary, recentPeriods, recentEmployees, chartPeriods] = await Promise.all([
     prisma.businessMember.findUnique({
       where: { userId_businessId: { userId: session.user.id, businessId } },
     }),
@@ -60,9 +61,20 @@ export default async function BusinessDashboard({ params }: Props) {
       take: 5,
       select: { id: true, name: true, position: true, payFrequency: true },
     }),
+    prisma.payrollPeriod.findMany({
+      where: { businessId, status: "FINALIZED" },
+      orderBy: { startDate: "asc" },
+      take: 12,
+      include: { items: { select: { totalAmount: true } } },
+    }),
   ]);
 
   if (!membership || !business) notFound();
+
+  const chartData = chartPeriods.map((p) => ({
+    label: format(p.startDate, "dd/MM"),
+    total: p.items.reduce((s, i) => s + Number(i.totalAmount), 0),
+  }));
 
   const totalOvertimeHours = overtimeSummary.reduce(
     (s, g) => s + Number(g._sum.hours ?? 0),
@@ -205,6 +217,16 @@ export default async function BusinessDashboard({ params }: Props) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Gráfico de masa salarial */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Masa salarial por período (últimas 12 liquidaciones finalizadas)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <PayrollChart data={chartData} currency={business.currency} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

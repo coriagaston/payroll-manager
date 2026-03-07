@@ -42,7 +42,7 @@ export default async function PayrollDetailPage({ params }: Props) {
     }),
     prisma.business.findUnique({
       where: { id: businessId },
-      select: { currency: true },
+      select: { currency: true, name: true },
     }),
   ]);
 
@@ -51,6 +51,7 @@ export default async function PayrollDetailPage({ params }: Props) {
   const startDate = format(period.startDate, "yyyy-MM-dd");
   const endDate = format(period.endDate, "yyyy-MM-dd");
   const currency = business?.currency ?? "ARS";
+  const businessName = business?.name ?? "";
 
   const results: PayrollResult[] = period.items.map((item) => ({
     employeeId: item.employeeId,
@@ -66,6 +67,8 @@ export default async function PayrollDetailPage({ params }: Props) {
     holidayAmount: Number(item.holidayAmount),
     advances: Number(item.advances),
     discounts: Number(item.discounts),
+    absences: (item.formula as Record<string, number>).absences ?? 0,
+    absenceDeduction: (item.formula as Record<string, number>).absenceDeduction ?? 0,
     totalAmount: Number(item.totalAmount),
     formula: item.formula as unknown as PayrollFormula,
     cbu: item.employee.cbu ?? null,
@@ -101,6 +104,7 @@ export default async function PayrollDetailPage({ params }: Props) {
         currency={currency}
         startDate={startDate}
         endDate={endDate}
+        businessName={businessName}
       />
     </div>
   );
