@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -13,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { CreateBusinessDialog } from "@/components/layout/create-business-dialog";
 
 interface Business {
   id: string;
@@ -36,6 +38,7 @@ const navItems = (businessId: string) => [
 
 export function Sidebar({ businesses, user }: SidebarProps) {
   const pathname = usePathname();
+  const [newBusinessOpen, setNewBusinessOpen] = useState(false);
 
   // Detectar el businessId activo del path
   const segments = pathname.split("/").filter(Boolean);
@@ -51,6 +54,7 @@ export function Sidebar({ businesses, user }: SidebarProps) {
     .toUpperCase();
 
   return (
+    <>
     <aside className="w-64 bg-white border-r border-slate-200 flex flex-col">
       {/* Logo */}
       <div className="p-4 border-b border-slate-200">
@@ -81,8 +85,8 @@ export function Sidebar({ businesses, user }: SidebarProps) {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/">+ Nuevo negocio</Link>
+            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setNewBusinessOpen(true); }}>
+              + Nuevo negocio
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -137,5 +141,8 @@ export function Sidebar({ businesses, user }: SidebarProps) {
         </DropdownMenu>
       </div>
     </aside>
+
+    <CreateBusinessDialog open={newBusinessOpen} onOpenChange={setNewBusinessOpen} />
+    </>
   );
 }

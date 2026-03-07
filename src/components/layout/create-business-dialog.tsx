@@ -18,10 +18,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function CreateBusinessDialog() {
+interface CreateBusinessDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function CreateBusinessDialog({ open: controlledOpen, onOpenChange }: CreateBusinessDialogProps) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen! : internalOpen;
+  const setOpen = isControlled ? (onOpenChange ?? (() => {})) : setInternalOpen;
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<BusinessFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -48,9 +57,11 @@ export function CreateBusinessDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>+ Nuevo negocio</Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button>+ Nuevo negocio</Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Crear nuevo negocio</DialogTitle>
