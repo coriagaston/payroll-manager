@@ -37,6 +37,9 @@ export async function createBusiness(formData: BusinessFormData) {
           monthlyHours: 200,
           dailyHours: 8,
           workingDaysPerMonth: 25,
+          jubilacionRate: 0.11,
+          obraSocialRate: 0.03,
+          pamiRate: 0.03,
         },
       },
       members: {

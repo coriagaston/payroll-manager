@@ -69,14 +69,15 @@ model Business {
   currency      String           @default("ARS")
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
-  members       BusinessMember[]
-  employees     Employee[]
-  holidays      Holiday[]
-  absences      Absence[]
-  config        BusinessConfig?
-  payrollPeriods PayrollPeriod[]
-  overtimes     Overtime[]
-  advances      Advance[]
+  members          BusinessMember[]
+  employees        Employee[]
+  holidays         Holiday[]
+  absences         Absence[]
+  config           BusinessConfig?
+  payrollPeriods   PayrollPeriod[]
+  overtimes        Overtime[]
+  advances         Advance[]
+  conceptTemplates PayrollConceptTemplate[]
 }
 
 model BusinessConfig {
@@ -90,9 +91,12 @@ model BusinessConfig {
   monthlyHours        Int               @default(200)
   dailyHours          Int               @default(8)
   workingDaysPerMonth Int               @default(25)
-  weekStartDay        Int               @default(1) // 1=Monday, 0=Sunday
+  weekStartDay        Int               @default(1)
   biweeklyFirstStart  Int               @default(1)
   biweeklyFirstEnd    Int               @default(15)
+  jubilacionRate      Decimal           @default(0.11) @db.Decimal(5, 4)
+  obraSocialRate      Decimal           @default(0.03) @db.Decimal(5, 4)
+  pamiRate            Decimal           @default(0.03) @db.Decimal(5, 4)
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 }
@@ -100,6 +104,23 @@ model BusinessConfig {
 enum HourlyFormulaType {
   MONTHLY_200
   DAILY_HOURS
+}
+
+model PayrollConceptTemplate {
+  id         String      @id @default(cuid())
+  businessId String
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  type       ConceptType
+  active     Boolean     @default(true)
+  createdAt  DateTime    @default(now())
+
+  @@index([businessId])
+}
+
+enum ConceptType {
+  EARNING
+  DEDUCTION
 }
 
 model BusinessMember {
@@ -129,6 +150,7 @@ model Employee {
   businessId   String
   business     Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
   name         String
+  cuil         String?
   dni          String?
   cbu          String?
   position     String

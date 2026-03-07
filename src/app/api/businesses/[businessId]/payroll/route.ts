@@ -97,6 +97,9 @@ export async function POST(req: NextRequest, { params }: Params) {
     monthlyHours: bizConfig.monthlyHours,
     dailyHours: bizConfig.dailyHours,
     workingDaysPerMonth: bizConfig.workingDaysPerMonth,
+    jubilacionRate: Number(bizConfig.jubilacionRate),
+    obraSocialRate: Number(bizConfig.obraSocialRate),
+    pamiRate: Number(bizConfig.pamiRate),
   };
 
   const period: PayrollPeriod = { startDate, endDate, frequency };
@@ -104,6 +107,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   const inputs: EmployeePayrollInput[] = employees.map((emp) => ({
     id: emp.id,
     name: emp.name,
+    cuil: emp.cuil,
     baseSalary: Number(emp.baseSalary),
     payFrequency: emp.payFrequency,
     hourlyRate: emp.hourlyRate ? Number(emp.hourlyRate) : null,

@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { BusinessConfigForm } from "@/components/layout/business-config-form";
 import { HolidaysManager } from "@/components/layout/holidays-manager";
+import { ConceptsManager } from "@/components/layout/concepts-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 
@@ -23,12 +24,16 @@ export default async function SettingsPage({ params }: Props) {
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";
 
-  const [business, config, holidays] = await Promise.all([
+  const [business, config, holidays, concepts] = await Promise.all([
     prisma.business.findUnique({ where: { id: businessId }, select: { name: true, currency: true } }),
     prisma.businessConfig.findUnique({ where: { businessId } }),
     prisma.holiday.findMany({
       where: { businessId },
       orderBy: { date: "asc" },
+    }),
+    prisma.payrollConceptTemplate.findMany({
+      where: { businessId },
+      orderBy: [{ type: "asc" }, { name: "asc" }],
     }),
   ]);
 
@@ -46,6 +51,9 @@ export default async function SettingsPage({ params }: Props) {
         weekStartDay: config.weekStartDay,
         biweeklyFirstStart: config.biweeklyFirstStart,
         biweeklyFirstEnd: config.biweeklyFirstEnd,
+        jubilacionRate: Number(config.jubilacionRate),
+        obraSocialRate: Number(config.obraSocialRate),
+        pamiRate: Number(config.pamiRate),
       }
     : null;
 
@@ -65,6 +73,7 @@ export default async function SettingsPage({ params }: Props) {
       <Tabs defaultValue="config">
         <TabsList>
           <TabsTrigger value="config">Parámetros de liquidación</TabsTrigger>
+          <TabsTrigger value="concepts">Conceptos salariales</TabsTrigger>
           <TabsTrigger value="holidays">Feriados</TabsTrigger>
         </TabsList>
 
@@ -72,6 +81,14 @@ export default async function SettingsPage({ params }: Props) {
           <BusinessConfigForm
             businessId={businessId}
             defaultValues={configData}
+            canEdit={canEdit}
+          />
+        </TabsContent>
+
+        <TabsContent value="concepts" className="pt-4">
+          <ConceptsManager
+            businessId={businessId}
+            concepts={concepts}
             canEdit={canEdit}
           />
         </TabsContent>

@@ -33,6 +33,9 @@ export function BusinessConfigForm({ businessId, defaultValues, canEdit }: Props
         weekStartDay: 1,
         biweeklyFirstStart: 1,
         biweeklyFirstEnd: 15,
+        jubilacionRate: 0.11,
+        obraSocialRate: 0.03,
+        pamiRate: 0.03,
       },
     });
 
@@ -132,6 +135,35 @@ export function BusinessConfigForm({ businessId, defaultValues, canEdit }: Props
           </div>
           {field("biweeklyFirstStart", "Inicio 1ª quincena", "Ej: 1")}
           {field("biweeklyFirstEnd", "Fin 1ª quincena", "Ej: 15")}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Retenciones legales (aportes del trabajador)</CardTitle>
+          <CardDescription>
+            Ley 20.744 · Se descuentan del bruto antes de calcular el neto.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-1">
+            <Label>Jubilación</Label>
+            <Input type="number" step="0.001" disabled={!canEdit} {...register("jubilacionRate")} />
+            <p className="text-xs text-muted-foreground">Por defecto: 0.11 (11%)</p>
+            {errors.jubilacionRate && <p className="text-xs text-red-500">{String(errors.jubilacionRate.message)}</p>}
+          </div>
+          <div className="space-y-1">
+            <Label>Obra Social</Label>
+            <Input type="number" step="0.001" disabled={!canEdit} {...register("obraSocialRate")} />
+            <p className="text-xs text-muted-foreground">Por defecto: 0.03 (3%)</p>
+            {errors.obraSocialRate && <p className="text-xs text-red-500">{String(errors.obraSocialRate.message)}</p>}
+          </div>
+          <div className="space-y-1">
+            <Label>PAMI</Label>
+            <Input type="number" step="0.001" disabled={!canEdit} {...register("pamiRate")} />
+            <p className="text-xs text-muted-foreground">Por defecto: 0.03 (3%)</p>
+            {errors.pamiRate && <p className="text-xs text-red-500">{String(errors.pamiRate.message)}</p>}
+          </div>
         </CardContent>
       </Card>
 

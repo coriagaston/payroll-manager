@@ -16,6 +16,7 @@ import type {
   PayrollResult,
   PayrollFormula,
   OvertimeBreakdown,
+  RetentionBreakdown,
 } from "./types";
 
 // ─── UTILIDADES DE FECHA (TZ-safe) ────────────────────────────────────────────
@@ -205,13 +206,29 @@ export function calculateAbsenceDeduction(
   return { totalAbsenceDays, deduction: totalAbsenceDays * dailyRate };
 }
 
+// ─── RETENCIONES LEGALES (Ley 20.744) ────────────────────────────────────────
+
+/**
+ * Calcula los aportes del trabajador sobre la remuneración bruta.
+ * Base = periodSalary + extras - ausencias (remuneración bruta del período)
+ * Jubilación: 11% | Obra Social: 3% | PAMI: 3% (configurable)
+ */
+export function calculateRetentions(
+  grossAmount: number,
+  config: Pick<PayrollConfig, "jubilacionRate" | "obraSocialRate" | "pamiRate">
+): RetentionBreakdown {
+  const jubilacion = grossAmount * config.jubilacionRate;
+  const obraSocial = grossAmount * config.obraSocialRate;
+  const pami = grossAmount * config.pamiRate;
+  return { base: grossAmount, jubilacion, obraSocial, pami, total: jubilacion + obraSocial + pami };
+}
+
 // ─── CALCULADOR PRINCIPAL ──────────────────────────────────────────────────────
 
 /**
  * Calcula la liquidación completa de un empleado para un período dado.
- * Todas las operaciones son TZ-safe (strings YYYY-MM-DD).
- *
- * Total = sueldo_período + extras50 + extras100 + holiday - anticipos - descuentos
+ * Bruto = sueldo_período + extras - ausencias
+ * Neto  = bruto - retenciones - anticipos - descuentos - conceptos_deducción
  */
 export function calculateEmployeePayroll(
   employee: EmployeePayrollInput,
@@ -221,10 +238,7 @@ export function calculateEmployeePayroll(
   // 1. Valor hora
   const hourlyRateCalc =
     employee.hourlyRate != null
-      ? {
-          rate: employee.hourlyRate,
-          formula: `Valor hora fijo: ${employee.hourlyRate}`,
-        }
+      ? { rate: employee.hourlyRate, formula: `Valor hora fijo: ${employee.hourlyRate}` }
       : calculateHourlyRate(employee.baseSalary, config);
 
   const hourlyRate = hourlyRateCalc.rate;
@@ -237,37 +251,28 @@ export function calculateEmployeePayroll(
   );
 
   // 3. Horas extras
-  const overtimeBreakdown = calculateOvertimeBreakdown(
-    employee.overtimes,
-    period,
-    hourlyRate,
-    config
-  );
-
+  const overtimeBreakdown = calculateOvertimeBreakdown(employee.overtimes, period, hourlyRate, config);
   const extra50 = overtimeBreakdown.find((b) => b.type === "EXTRA_50");
   const extra100 = overtimeBreakdown.find((b) => b.type === "EXTRA_100");
   const holiday = overtimeBreakdown.find((b) => b.type === "HOLIDAY");
-
   const totalOvertimeAmount = overtimeBreakdown.reduce((s, b) => s + b.amount, 0);
 
   // 4. Anticipos y descuentos
-  const { totalAdvances, totalDiscounts } = calculateAdvancesAndDiscounts(
-    employee.advances,
-    period
-  );
+  const { totalAdvances, totalDiscounts } = calculateAdvancesAndDiscounts(employee.advances, period);
 
   // 5. Ausencias
   const { totalAbsenceDays, deduction: absenceDeduction } = calculateAbsenceDeduction(
-    employee.absences,
-    period,
-    periodSalary,
-    periodDays
+    employee.absences, period, periodSalary, periodDays
   );
 
-  // 6. Total final
-  const totalAmount = periodSalary + totalOvertimeAmount - totalAdvances - totalDiscounts - absenceDeduction;
+  // 6. Remuneración bruta y retenciones
+  const grossAmount = periodSalary + totalOvertimeAmount - absenceDeduction;
+  const retentions = calculateRetentions(grossAmount, config);
 
-  // 7. Fórmula para transparencia
+  // 7. Neto final
+  const totalAmount = grossAmount - retentions.total - totalAdvances - totalDiscounts;
+
+  // 8. Fórmula para transparencia
   const formula: PayrollFormula = {
     baseSalary: employee.baseSalary,
     frequency: employee.payFrequency,
@@ -278,16 +283,20 @@ export function calculateEmployeePayroll(
     hourlyRate,
     overtimeBreakdown,
     totalOvertimeAmount,
+    grossAmount,
+    retentions,
     advances: totalAdvances,
     discounts: totalDiscounts,
     absences: totalAbsenceDays,
     absenceDeduction,
+    extraConcepts: [],
     totalAmount,
   };
 
   return {
     employeeId: employee.id,
     employeeName: employee.name,
+    cuil: employee.cuil ?? null,
     baseSalary: employee.baseSalary,
     periodSalary,
     hourlyRate,
@@ -297,10 +306,13 @@ export function calculateEmployeePayroll(
     extra100Amount: extra100?.amount ?? 0,
     holidayHours: holiday?.hours ?? 0,
     holidayAmount: holiday?.amount ?? 0,
+    grossAmount,
+    retentions,
     advances: totalAdvances,
     discounts: totalDiscounts,
     absences: totalAbsenceDays,
     absenceDeduction,
+    extraConcepts: [],
     totalAmount,
     formula,
   };

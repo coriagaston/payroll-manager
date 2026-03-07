@@ -21,6 +21,7 @@ interface Props {
   startDate: string;
   endDate: string;
   businessName?: string;
+  businessCuit?: string;
 }
 
 const freqLabel: Record<string, string> = {
@@ -50,7 +51,7 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-export function PayrollPreview({ results, currency, startDate, endDate, businessName = "" }: Props) {
+export function PayrollPreview({ results, currency, startDate, endDate, businessName = "", businessCuit }: Props) {
   const grandTotal = results.reduce((s, r) => s + r.totalAmount, 0);
 
   return (
@@ -94,6 +95,7 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                   startDate={startDate}
                   endDate={endDate}
                   businessName={businessName}
+                  businessCuit={businessCuit}
                 />
                 <div className="text-right">
                   <p className="font-bold text-sm text-green-600 dark:text-green-400">{formatCurrency(r.totalAmount, currency)}</p>
@@ -116,10 +118,12 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
               <TableHead className="text-right hidden lg:table-cell">HS 50%</TableHead>
               <TableHead className="text-right hidden lg:table-cell">HS 100%</TableHead>
               <TableHead className="text-right hidden lg:table-cell">Feriado</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Bruto</TableHead>
+              <TableHead className="text-right hidden md:table-cell">Retenciones</TableHead>
               <TableHead className="text-right hidden md:table-cell">Anticipos</TableHead>
               <TableHead className="text-right hidden md:table-cell">Descuentos</TableHead>
               <TableHead className="text-right hidden md:table-cell">Inasist.</TableHead>
-              <TableHead className="text-right font-bold">TOTAL</TableHead>
+              <TableHead className="text-right font-bold">NETO</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -138,6 +142,12 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                 </TableCell>
                 <TableCell className="text-right hidden lg:table-cell text-red-600 dark:text-red-400">
                   {r.holidayAmount > 0 ? formatCurrency(r.holidayAmount, currency) : "—"}
+                </TableCell>
+                <TableCell className="text-right hidden md:table-cell font-medium">
+                  {formatCurrency(r.grossAmount, currency)}
+                </TableCell>
+                <TableCell className="text-right hidden md:table-cell text-orange-600 dark:text-orange-400">
+                  {r.retentions.total > 0 ? `- ${formatCurrency(r.retentions.total, currency)}` : "—"}
                 </TableCell>
                 <TableCell className="text-right hidden md:table-cell text-blue-600 dark:text-blue-400">
                   {r.advances > 0 ? `- ${formatCurrency(r.advances, currency)}` : "—"}
@@ -180,13 +190,24 @@ export function PayrollPreview({ results, currency, startDate, endDate, business
                 ))}
                 {r.formula.overtimeBreakdown.length === 0 && <p>Sin horas extras</p>}
                 <hr />
+                <p className="font-semibold">BRUTO = {formatCurrency(r.grossAmount, currency)}</p>
+                {r.retentions.total > 0 && (
+                  <>
+                    <p className="text-orange-600 dark:text-orange-400">Jubilación (11%): - {formatCurrency(r.retentions.jubilacion, currency)}</p>
+                    <p className="text-orange-600 dark:text-orange-400">Obra Social (3%): - {formatCurrency(r.retentions.obraSocial, currency)}</p>
+                    <p className="text-orange-600 dark:text-orange-400">PAMI (3%): - {formatCurrency(r.retentions.pami, currency)}</p>
+                    <p className="text-orange-600 dark:text-orange-400 font-semibold">Total retenciones: - {formatCurrency(r.retentions.total, currency)}</p>
+                  </>
+                )}
+                <hr />
                 {r.formula.advances > 0 && <p>Anticipos: - {formatCurrency(r.formula.advances, currency)}</p>}
                 {r.formula.discounts > 0 && <p>Descuentos: - {formatCurrency(r.formula.discounts, currency)}</p>}
                 {r.formula.absences > 0 && (
                   <p>Inasistencias: {r.formula.absences} día(s) = - {formatCurrency(r.formula.absenceDeduction, currency)}</p>
                 )}
                 <p className="font-bold">
-                  TOTAL = {formatCurrency(r.periodSalary, currency)} + {formatCurrency(r.formula.totalOvertimeAmount, currency)}
+                  NETO = {formatCurrency(r.grossAmount, currency)}
+                  {r.retentions.total > 0 ? ` - ${formatCurrency(r.retentions.total, currency)}` : ""}
                   {r.formula.advances > 0 ? ` - ${formatCurrency(r.formula.advances, currency)}` : ""}
                   {r.formula.discounts > 0 ? ` - ${formatCurrency(r.formula.discounts, currency)}` : ""}
                   {r.formula.absenceDeduction > 0 ? ` - ${formatCurrency(r.formula.absenceDeduction, currency)}` : ""}

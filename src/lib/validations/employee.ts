@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const employeeSchema = z.object({
   name: z.string().min(2, "Nombre requerido (mín. 2 caracteres)"),
+  cuil: z.string().optional(),
   dni: z.string().optional(),
   cbu: z.string().max(22).optional(),
   position: z.string().min(1, "Puesto requerido"),

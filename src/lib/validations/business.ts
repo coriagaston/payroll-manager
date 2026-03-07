@@ -20,6 +20,9 @@ export const businessConfigSchema = z.object({
   weekStartDay: z.coerce.number().int().min(0).max(6).default(1),
   biweeklyFirstStart: z.coerce.number().int().min(1).max(15).default(1),
   biweeklyFirstEnd: z.coerce.number().int().min(1).max(20).default(15),
+  jubilacionRate: z.coerce.number().min(0).max(1).default(0.11),
+  obraSocialRate: z.coerce.number().min(0).max(1).default(0.03),
+  pamiRate: z.coerce.number().min(0).max(1).default(0.03),
 });
 
 export const holidaySchema = z.object({
@@ -42,8 +45,14 @@ export const payrollGenerateSchema = z.object({
   employeeIds: z.array(z.string()).optional(),
 });
 
+export const payrollConceptSchema = z.object({
+  name: z.string().min(1, "Nombre requerido"),
+  type: z.enum(["EARNING", "DEDUCTION"]),
+});
+
 export type BusinessFormData = z.infer<typeof businessSchema>;
 export type BusinessConfigFormData = z.infer<typeof businessConfigSchema>;
 export type HolidayFormData = z.infer<typeof holidaySchema>;
 export type AdvanceFormData = z.infer<typeof advanceSchema>;
 export type PayrollGenerateData = z.infer<typeof payrollGenerateSchema>;
+export type PayrollConceptFormData = z.infer<typeof payrollConceptSchema>;

@@ -30,6 +30,7 @@ interface SalaryHistoryEntry {
 interface Employee {
   id: string;
   name: string;
+  cuil?: string | null;
   dni?: string | null;
   cbu?: string | null;
   position: string;
@@ -68,6 +69,7 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
       defaultValues: employee
         ? {
             name: employee.name,
+            cuil: employee.cuil ?? undefined,
             dni: employee.dni ?? undefined,
             cbu: employee.cbu ?? undefined,
             position: employee.position,
@@ -129,6 +131,11 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
               <Label>Nombre completo *</Label>
               <Input {...register("name")} placeholder="Juan Pérez" />
               {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <Label>CUIL</Label>
+              <Input {...register("cuil")} placeholder="20-30111222-1" />
             </div>
 
             <div className="space-y-1">
@@ -242,6 +249,11 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
               <Label>Nombre completo *</Label>
               <Input {...register("name")} placeholder="Juan Pérez" />
               {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
+            </div>
+
+            <div className="space-y-1">
+              <Label>CUIL</Label>
+              <Input {...register("cuil")} placeholder="20-30111222-1" />
             </div>
 
             <div className="space-y-1">
