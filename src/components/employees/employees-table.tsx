@@ -19,6 +19,7 @@ import { format } from "date-fns";
 interface Employee {
   id: string;
   name: string;
+  cuil?: string | null;
   dni?: string | null;
   cbu?: string | null;
   position: string;
@@ -28,6 +29,7 @@ interface Employee {
   hourlyRate?: number | null;
   dailyHours: number;
   status: string;
+  employmentType: string;
 }
 
 interface Props {
