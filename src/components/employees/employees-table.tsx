@@ -12,6 +12,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import Link from "next/link";
 import { EmployeeFormDialog } from "./employee-form-dialog";
 import { formatCurrency } from "@/lib/payroll/calculator";
 import { format } from "date-fns";
@@ -136,6 +137,9 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
                   </TableCell>
                   {canEdit && (
                     <TableCell className="text-right space-x-2">
+                      <Link href={`/${businessId}/employees/${emp.id}`}>
+                        <Button variant="ghost" size="sm">Legajo</Button>
+                      </Link>
                       <EmployeeFormDialog
                         businessId={businessId}
                         mode="edit"

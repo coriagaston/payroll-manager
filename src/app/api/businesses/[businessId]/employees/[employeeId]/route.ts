@@ -30,6 +30,29 @@ export async function GET(req: NextRequest, { params }: Params) {
   return NextResponse.json(employee);
 }
 
+export async function PATCH(req: NextRequest, { params }: Params) {
+  const session = await getAuthSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { businessId, employeeId } = await params;
+
+  try {
+    await requireBusinessAccess(businessId, session.user.id, "ADMIN");
+  } catch {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const body = await req.json();
+
+  // PATCH solo actualiza campos parciales (ej: notes)
+  await prisma.employee.updateMany({
+    where: { id: employeeId, businessId },
+    data: { notes: body.notes ?? undefined },
+  });
+
+  return NextResponse.json({ success: true });
+}
+
 export async function PUT(req: NextRequest, { params }: Params) {
   const session = await getAuthSession();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

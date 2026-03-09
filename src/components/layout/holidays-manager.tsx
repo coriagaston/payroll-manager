@@ -25,6 +25,23 @@ interface Props {
 export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingBulk, setLoadingBulk] = useState(false);
+
+  const loadFeriados2025 = async () => {
+    if (!confirm("¿Cargar los feriados nacionales argentinos 2025? Se ignorarán los que ya existen.")) return;
+    setLoadingBulk(true);
+    try {
+      const res = await fetch(`/api/businesses/${businessId}/holidays`, { method: "POST" });
+      const data = await res.json();
+      toast.success(`${data.added} feriados agregados (${data.total - data.added} ya existían)`);
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al cargar feriados");
+    } finally {
+      setLoadingBulk(false);
+    }
+  };
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<HolidayFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -90,8 +107,13 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
       )}
 
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-base">Feriados configurados ({holidays.length})</CardTitle>
+          {canEdit && (
+            <Button variant="outline" size="sm" onClick={loadFeriados2025} disabled={loadingBulk}>
+              {loadingBulk ? "Cargando..." : "Cargar feriados 2025"}
+            </Button>
+          )}
         </CardHeader>
         <CardContent>
           {holidays.length === 0 ? (

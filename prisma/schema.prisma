@@ -161,6 +161,7 @@ model Employee {
   dailyHours      Int            @default(8)
   status          EmployeeStatus @default(ACTIVE)
   employmentType  EmploymentType @default(FORMAL)
+  notes           String?        @db.Text
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
   overtimes      Overtime[]
@@ -168,9 +169,33 @@ model Employee {
   advances       Advance[]
   absences       Absence[]
   salaryHistory  EmployeeSalaryHistory[]
+  documents      EmployeeDocument[]
 
   @@index([businessId])
   @@index([businessId, status])
+}
+
+model EmployeeDocument {
+  id         String       @id @default(cuid())
+  employeeId String
+  employee   Employee     @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  title      String
+  type       DocumentType
+  url        String?
+  date       DateTime     @db.Date
+  notes      String?
+  createdAt  DateTime     @default(now())
+
+  @@index([employeeId])
+}
+
+enum DocumentType {
+  CONTRATO
+  DNI
+  RECIBO_FIRMADO
+  ALTA_AFIP
+  BAJA_AFIP
+  OTRO
 }
 
 model EmployeeSalaryHistory {

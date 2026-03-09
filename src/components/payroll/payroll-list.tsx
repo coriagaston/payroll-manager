@@ -68,8 +68,12 @@ export function PayrollList({ rows, businessId, currency }: Props) {
     });
   }, [rows, statusFilter, freqFilter, search]);
 
-  const handleExport = (periodId: string) => {
+  const handleExportCsv = (periodId: string) => {
     window.open(`/api/businesses/${businessId}/payroll/${periodId}/export`, "_blank");
+  };
+
+  const handleExportExcel = (periodId: string) => {
+    window.open(`/api/businesses/${businessId}/payroll/${periodId}/export-excel`, "_blank");
   };
 
   const handleFinalize = async (periodId: string) => {
@@ -211,9 +215,16 @@ export function PayrollList({ rows, businessId, currency }: Props) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => handleExport(row.id)}
+                  onClick={() => handleExportCsv(row.id)}
                 >
                   CSV
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleExportExcel(row.id)}
+                >
+                  Excel
                 </Button>
                 {row.status === "DRAFT" && (
                   <>
