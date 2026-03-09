@@ -25,220 +25,333 @@ export function PayrollPdfButton({ result, currency, startDate, endDate, busines
 
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
-      const m = 15; // margin
-      const col2 = pageW / 2 + 5;
-      const colRight = pageW - m;
-      let y = m;
+      const mL = 12; // left margin
+      const mR = pageW - 12; // right margin
+      const contentW = mR - mL;
 
-      const dark: [number, number, number] = [15, 23, 42];
-      const gray: [number, number, number] = [100, 116, 139];
-      const lightGray: [number, number, number] = [226, 232, 240];
-      const blue: [number, number, number] = [37, 99, 235];
-      const green: [number, number, number] = [21, 128, 61];
-      const red: [number, number, number] = [185, 28, 28];
-      const orange: [number, number, number] = [194, 65, 12];
+      // ── Paleta ──────────────────────────────────────────────────────
+      const black:     [number, number, number] = [10, 10, 10];
+      const darkGray:  [number, number, number] = [50, 50, 50];
+      const midGray:   [number, number, number] = [110, 110, 110];
+      const lightGray: [number, number, number] = [210, 210, 210];
+      const ultraLight:[number, number, number] = [245, 245, 245];
+      const navy:      [number, number, number] = [22, 48, 90];
+      const navyLight: [number, number, number] = [235, 240, 250];
+      const green:     [number, number, number] = [20, 110, 55];
+      const greenLight:[number, number, number] = [235, 252, 242];
+      const red:       [number, number, number] = [180, 30, 30];
 
-      // ── Encabezado azul ────────────────────────────────────────
-      doc.setFillColor(...blue);
-      doc.rect(0, 0, pageW, 32, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(14);
-      doc.setFont("helvetica", "bold");
-      doc.text("RECIBO DE SUELDO", m, 11);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.text("Ley 20.744 — Contrato de Trabajo", m, 17);
-      // Datos empleador (derecha)
-      doc.setFontSize(9);
-      doc.setFont("helvetica", "bold");
-      doc.text(businessName, colRight, 10, { align: "right" });
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(8);
-      if (businessCuit) {
-        doc.text(`CUIT: ${businessCuit}`, colRight, 16, { align: "right" });
-      }
-      const freqLabel: Record<string, string> = { WEEKLY: "Semanal", BIWEEKLY: "Quincenal", MONTHLY: "Mensual" };
-      doc.text(`Período: ${startDate} — ${endDate}`, colRight, 22, { align: "right" });
-      doc.text(`Frecuencia: ${freqLabel[result.formula.frequency] ?? result.formula.frequency}`, colRight, 28, { align: "right" });
-      y = 40;
-
-      // ── Datos empleado ─────────────────────────────────────────
-      doc.setFillColor(241, 245, 249); // slate-100
-      doc.roundedRect(m, y - 4, pageW - m * 2, 22, 2, 2, "F");
-      doc.setTextColor(...dark);
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.text(result.employeeName, m + 3, y + 2);
-      doc.setFontSize(8.5);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...gray);
-      let empInfo = "";
-      if (result.cuil) empInfo += `CUIL: ${result.cuil}   `;
-      if (result.cbu) empInfo += `CBU: ${result.cbu}`;
-      if (empInfo) doc.text(empInfo, m + 3, y + 8);
-      doc.text(`Ingreso: ${startDate}`, m + 3, y + 14);
-      y += 26;
-
-      // ── Tabla haberes / deducciones ─────────────────────────────
-      // Cabecera tabla
-      doc.setFillColor(...blue);
-      doc.rect(m, y, pageW - m * 2, 7, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "bold");
-      doc.text("CONCEPTO", m + 2, y + 4.8);
-      doc.text("HABERES", col2 + 20, y + 4.8, { align: "right" });
-      doc.text("DEDUCCIONES", colRight, y + 4.8, { align: "right" });
-      y += 10;
-
-      const tableRow = (
-        label: string,
-        haber = "",
-        deduccion = "",
-        labelColor: [number, number, number] = dark,
-        shade = false
-      ) => {
-        if (shade) {
-          doc.setFillColor(248, 250, 252);
-          doc.rect(m, y - 4, pageW - m * 2, 6.5, "F");
-        }
-        doc.setTextColor(...labelColor);
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(8.5);
-        doc.text(label, m + 2, y);
-        if (haber) {
-          doc.setTextColor(...dark);
-          doc.text(haber, col2 + 20, y, { align: "right" });
-        }
-        if (deduccion) {
-          doc.setTextColor(...red);
-          doc.text(deduccion, colRight, y, { align: "right" });
-        }
-        y += 6.5;
+      const freqLabel: Record<string, string> = {
+        WEEKLY: "Semanal", BIWEEKLY: "Quincenal", MONTHLY: "Mensual",
       };
 
-      let shade = false;
-      tableRow("Remuneración básica", formatCurrency(result.formula.baseSalary, currency), "", dark, shade = !shade);
-      tableRow(
-        `Remuneración proporcional (${result.formula.periodDays}/${result.formula.calendarDays} días)`,
-        formatCurrency(result.periodSalary, currency),
-        "",
-        dark,
-        shade = !shade
-      );
+      // ════════════════════════════════════════════════════════════════
+      // FUNCIÓN auxiliar para dibujar una copia del recibo
+      // offsetY = 0 para original, mitad de página para duplicado
+      // ════════════════════════════════════════════════════════════════
+      const drawRecibo = (offsetY: number, label: "ORIGINAL" | "DUPLICADO") => {
+        let y = offsetY + 6;
+        const bot = offsetY + pageH / 2 - 4; // límite inferior de esta copia
 
-      // Horas extras
-      const typeLabel: Record<string, string> = { EXTRA_50: "H. extra 50%", EXTRA_100: "H. extra 100%", HOLIDAY: "H. feriado" };
-      for (const ob of result.formula.overtimeBreakdown) {
-        tableRow(
-          `${typeLabel[ob.type] ?? ob.type}: ${ob.hours}h × ${formatCurrency(ob.hourlyRate, currency)} × ${ob.rate}`,
-          formatCurrency(ob.amount, currency),
-          "",
-          orange,
-          shade = !shade
-        );
-      }
-
-      // Conceptos extra (EARNING)
-      for (const ec of (result.extraConcepts ?? [])) {
-        if (ec.type === "EARNING") {
-          tableRow(ec.name, formatCurrency(ec.amount, currency), "", dark, shade = !shade);
-        }
-      }
-
-      // Inasistencias
-      if (result.absenceDeduction > 0) {
-        tableRow(
-          `Inasistencias (${result.absences} día/s)`,
-          "",
-          formatCurrency(result.absenceDeduction, currency),
-          dark,
-          shade = !shade
-        );
-      }
-
-      // Conceptos extra (DEDUCTION)
-      for (const ec of (result.extraConcepts ?? [])) {
-        if (ec.type === "DEDUCTION") {
-          tableRow(ec.name, "", formatCurrency(ec.amount, currency), dark, shade = !shade);
-        }
-      }
-
-      // Retenciones legales
-      if (result.retentions.total > 0) {
-        y += 1;
+        // ── Borde exterior ──────────────────────────────────────────
         doc.setDrawColor(...lightGray);
-        doc.line(m, y, colRight, y);
-        y += 4;
-        doc.setTextColor(...gray);
-        doc.setFontSize(7.5);
-        doc.setFont("helvetica", "italic");
-        doc.text("RETENCIONES LEGALES (aportes del trabajador)", m + 2, y);
-        y += 5;
-        tableRow("Jubilación (SIJP 11%)", "", formatCurrency(result.retentions.jubilacion, currency), gray, shade = !shade);
-        tableRow("Obra Social (3%)", "", formatCurrency(result.retentions.obraSocial, currency), gray, shade = !shade);
-        tableRow("PAMI (3%)", "", formatCurrency(result.retentions.pami, currency), gray, shade = !shade);
-      }
+        doc.setLineWidth(0.3);
+        doc.rect(mL, offsetY + 2, contentW, pageH / 2 - 6);
 
-      // Anticipos / descuentos
-      if (result.advances > 0) {
-        tableRow("Anticipos", "", formatCurrency(result.advances, currency), dark, shade = !shade);
-      }
-      if (result.discounts > 0) {
-        tableRow("Descuentos", "", formatCurrency(result.discounts, currency), dark, shade = !shade);
-      }
+        // ── Encabezado: franja azul marino ──────────────────────────
+        doc.setFillColor(...navy);
+        doc.rect(mL, offsetY + 2, contentW, 14, "F");
 
-      // ── Totales ─────────────────────────────────────────────────
-      y += 2;
-      doc.setDrawColor(...lightGray);
-      doc.line(m, y, colRight, y);
-      y += 5;
+        // Título izquierda
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("RECIBO DE HABERES", mL + 4, y + 5);
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "normal");
+        doc.text("Ley de Contrato de Trabajo N° 20.744 — Art. 140", mL + 4, y + 9.5);
 
-      // Bruto
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(9);
-      doc.setTextColor(...dark);
-      doc.text("REMUNERACIÓN BRUTA", m + 2, y);
-      doc.text(formatCurrency(result.grossAmount, currency), col2 + 20, y, { align: "right" });
-      y += 7;
+        // Etiqueta ORIGINAL / DUPLICADO (derecha)
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        doc.text(label, mR - 4, y + 5, { align: "right" });
 
-      // Neto
-      doc.setFillColor(240, 253, 244); // green-50
-      doc.roundedRect(m, y - 5, pageW - m * 2, 12, 2, 2, "F");
-      doc.setFontSize(11);
-      doc.setTextColor(...green);
-      doc.text("TOTAL NETO A COBRAR", m + 3, y + 2);
-      doc.text(formatCurrency(result.totalAmount, currency), colRight - 2, y + 2, { align: "right" });
-      y += 16;
+        y += 18;
 
-      // ── Valor hora ──────────────────────────────────────────────
-      doc.setFontSize(7);
-      doc.setFont("helvetica", "italic");
-      doc.setTextColor(...gray);
-      doc.text(`Valor hora: ${result.formula.hourlyRateFormula}`, m, y);
-      y += 10;
+        // ── Fila: EMPLEADOR (izq) | PERÍODO (der) ───────────────────
+        const halfW = contentW / 2;
 
-      // ── Firmas ──────────────────────────────────────────────────
-      const signY = pageH - 35;
-      doc.setDrawColor(...lightGray);
-      doc.line(m, signY, m + 60, signY);
-      doc.line(colRight - 60, signY, colRight, signY);
-      doc.setFontSize(8);
-      doc.setFont("helvetica", "normal");
-      doc.setTextColor(...gray);
-      doc.text("Firma del empleado", m, signY + 5);
-      doc.text("Firma y sello del empleador", colRight - 60, signY + 5);
-      doc.text("Aclaración: ____________________", m, signY + 11);
+        // Caja empleador
+        doc.setFillColor(...navyLight);
+        doc.rect(mL, y, halfW - 1, 16, "F");
+        doc.setDrawColor(...lightGray);
+        doc.rect(mL, y, halfW - 1, 16);
 
-      // ── Pie ─────────────────────────────────────────────────────
-      doc.setDrawColor(...lightGray);
-      doc.line(m, pageH - 12, colRight, pageH - 12);
+        doc.setTextColor(...midGray);
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "bold");
+        doc.text("EMPLEADOR", mL + 2, y + 4);
+        doc.setTextColor(...black);
+        doc.setFontSize(8.5);
+        doc.setFont("helvetica", "bold");
+        doc.text(businessName, mL + 2, y + 9, { maxWidth: halfW - 5 });
+        if (businessCuit) {
+          doc.setFontSize(7.5);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...darkGray);
+          doc.text(`CUIT: ${businessCuit}`, mL + 2, y + 14);
+        }
+
+        // Caja período
+        doc.setFillColor(...navyLight);
+        doc.rect(mL + halfW + 1, y, halfW - 1, 16, "F");
+        doc.setDrawColor(...lightGray);
+        doc.rect(mL + halfW + 1, y, halfW - 1, 16);
+
+        doc.setTextColor(...midGray);
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "bold");
+        doc.text("PERÍODO", mL + halfW + 3, y + 4);
+        doc.setTextColor(...black);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "normal");
+        doc.text(`${startDate}  →  ${endDate}`, mL + halfW + 3, y + 9);
+        doc.text(`Frecuencia: ${freqLabel[result.formula.frequency] ?? "—"}`, mL + halfW + 3, y + 14);
+
+        y += 20;
+
+        // ── Fila: EMPLEADO ───────────────────────────────────────────
+        doc.setFillColor(...ultraLight);
+        doc.rect(mL, y, contentW, 14, "F");
+        doc.setDrawColor(...lightGray);
+        doc.rect(mL, y, contentW, 14);
+
+        doc.setTextColor(...midGray);
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "bold");
+        doc.text("EMPLEADO", mL + 2, y + 4);
+
+        doc.setTextColor(...black);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text(result.employeeName, mL + 2, y + 10);
+
+        // CUIL y CBU (derecha)
+        const idParts: string[] = [];
+        if (result.cuil) idParts.push(`CUIL: ${result.cuil}`);
+        if (result.cbu)  idParts.push(`CBU: ${result.cbu}`);
+        if (idParts.length > 0) {
+          doc.setFontSize(7.5);
+          doc.setFont("helvetica", "normal");
+          doc.setTextColor(...darkGray);
+          doc.text(idParts.join("    "), mR - 3, y + 10, { align: "right" });
+        }
+
+        y += 18;
+
+        // ── Tabla de conceptos ───────────────────────────────────────
+        // Encabezado de tabla
+        doc.setFillColor(...navy);
+        doc.rect(mL, y, contentW, 6, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(7);
+        doc.setFont("helvetica", "bold");
+        const c1 = mL + 2;
+        const c2 = mL + contentW * 0.52;
+        const c3 = mL + contentW * 0.72;
+        const c4 = mR - 2;
+        doc.text("CONCEPTO", c1, y + 4);
+        doc.text("HABERES", c3 - 1, y + 4, { align: "right" });
+        doc.text("DEDUCCIONES", c4, y + 4, { align: "right" });
+        y += 7;
+
+        // Divisor vertical de columnas
+        const drawVLines = (rowY: number, rowH: number) => {
+          doc.setDrawColor(...lightGray);
+          doc.setLineWidth(0.15);
+          doc.line(c3 - 12, rowY, c3 - 12, rowY + rowH);
+          doc.line(c4 - 22, rowY, c4 - 22, rowY + rowH);
+        };
+
+        let shade = false;
+        const conceptRow = (
+          concepto: string,
+          haber: string,
+          deduccion: string,
+          labelColor: [number, number, number] = darkGray
+        ) => {
+          const rowH = 5.5;
+          if (shade) {
+            doc.setFillColor(...ultraLight);
+            doc.rect(mL, y, contentW, rowH, "F");
+          }
+          drawVLines(y, rowH);
+          doc.setDrawColor(...lightGray);
+          doc.setLineWidth(0.1);
+          doc.line(mL, y + rowH, mR, y + rowH);
+
+          doc.setTextColor(...labelColor);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7.5);
+          doc.text(concepto, c1, y + 3.8, { maxWidth: c3 - 14 - c1 });
+          if (haber) {
+            doc.setTextColor(...darkGray);
+            doc.setFont("helvetica", "normal");
+            doc.text(haber, c3 - 14, y + 3.8, { align: "right" });
+          }
+          if (deduccion) {
+            doc.setTextColor(...red);
+            doc.setFont("helvetica", "normal");
+            doc.text(deduccion, c4, y + 3.8, { align: "right" });
+          }
+          y += rowH;
+          shade = !shade;
+        };
+
+        // Sueldo básico
+        conceptRow(
+          `Remuneración básica`,
+          formatCurrency(result.formula.baseSalary, currency),
+          ""
+        );
+        conceptRow(
+          `Remuneración proporcional al período (${result.formula.periodDays}/${result.formula.calendarDays} días)`,
+          formatCurrency(result.periodSalary, currency),
+          ""
+        );
+
+        // Horas extras
+        const typeLabel: Record<string, string> = {
+          EXTRA_50: "Horas extras 50%",
+          EXTRA_100: "Horas extras 100%",
+          HOLIDAY: "Horas en día feriado",
+        };
+        for (const ob of result.formula.overtimeBreakdown) {
+          conceptRow(
+            `${typeLabel[ob.type] ?? ob.type}  (${ob.hours}h × ${ob.rate})`,
+            formatCurrency(ob.amount, currency),
+            ""
+          );
+        }
+
+        // Conceptos adicionales (haberes)
+        for (const ec of result.extraConcepts ?? []) {
+          if (ec.type === "EARNING") {
+            conceptRow(ec.name, formatCurrency(ec.amount, currency), "");
+          }
+        }
+
+        // Inasistencias
+        if (result.absenceDeduction > 0) {
+          conceptRow(
+            `Descuento por inasistencias (${result.absences} día/s)`,
+            "",
+            formatCurrency(result.absenceDeduction, currency)
+          );
+        }
+
+        // Retenciones legales
+        if (result.retentions.total > 0) {
+          conceptRow("Jubilación — SIJP (11%)", "", formatCurrency(result.retentions.jubilacion, currency), midGray);
+          conceptRow("Obra Social (3%)", "", formatCurrency(result.retentions.obraSocial, currency), midGray);
+          conceptRow("INSSJP — PAMI (3%)", "", formatCurrency(result.retentions.pami, currency), midGray);
+        }
+
+        // Anticipos / descuentos
+        if (result.advances > 0) {
+          conceptRow("Anticipo de haberes", "", formatCurrency(result.advances, currency));
+        }
+        if (result.discounts > 0) {
+          conceptRow("Descuentos varios", "", formatCurrency(result.discounts, currency));
+        }
+
+        // Conceptos adicionales (deducciones)
+        for (const ec of result.extraConcepts ?? []) {
+          if (ec.type === "DEDUCTION") {
+            conceptRow(ec.name, "", formatCurrency(ec.amount, currency));
+          }
+        }
+
+        // ── Totales ──────────────────────────────────────────────────
+        y += 1;
+
+        // Bruto
+        doc.setFillColor(...ultraLight);
+        doc.rect(mL, y, contentW, 7, "F");
+        doc.setDrawColor(...lightGray);
+        doc.rect(mL, y, contentW, 7);
+        doc.setTextColor(...darkGray);
+        doc.setFontSize(8);
+        doc.setFont("helvetica", "bold");
+        doc.text("REMUNERACIÓN BRUTA", c1, y + 4.8);
+        doc.text(formatCurrency(result.grossAmount, currency), c3 - 14, y + 4.8, { align: "right" });
+        if (result.retentions.total > 0) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7.5);
+          doc.setTextColor(...red);
+          doc.text(`− ${formatCurrency(result.retentions.total, currency)}`, c4, y + 4.8, { align: "right" });
+        }
+        y += 9;
+
+        // Neto — caja destacada
+        doc.setFillColor(...greenLight);
+        doc.rect(mL, y, contentW, 10, "F");
+        doc.setDrawColor(...green);
+        doc.setLineWidth(0.5);
+        doc.rect(mL, y, contentW, 10);
+        doc.setLineWidth(0.2);
+        doc.setTextColor(...green);
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        doc.text("TOTAL NETO A COBRAR", c1, y + 6.5);
+        doc.setFontSize(12);
+        doc.text(formatCurrency(result.totalAmount, currency), mR - 3, y + 6.5, { align: "right" });
+        y += 13;
+
+        // ── Firmas ───────────────────────────────────────────────────
+        const sigY = bot - 20;
+        if (y < sigY) {
+          // Línea separadora
+          doc.setDrawColor(...lightGray);
+          doc.setLineWidth(0.2);
+          doc.line(mL, sigY - 2, mR, sigY - 2);
+
+          // Firma empleado
+          doc.setDrawColor(...midGray);
+          doc.setLineWidth(0.3);
+          doc.line(mL + 4, sigY + 12, mL + 65, sigY + 12);
+          doc.setTextColor(...midGray);
+          doc.setFontSize(7);
+          doc.setFont("helvetica", "normal");
+          doc.text("Firma y aclaración del empleado", mL + 4, sigY + 16);
+          doc.text("DNI:", mL + 4, sigY + 20);
+
+          // Firma empleador
+          doc.line(mR - 65, sigY + 12, mR - 4, sigY + 12);
+          doc.text("Firma y sello del empleador", mR - 65, sigY + 16);
+
+          // Nota legal
+          doc.setFontSize(6);
+          doc.setTextColor(...midGray);
+          doc.text(
+            `Recibí la suma indicada en concepto de haberes del período indicado. Ley 20.744 Art. 140.   Generado: ${new Date().toLocaleDateString("es-AR")}`,
+            mL + 4, bot - 2
+          );
+        }
+      };
+
+      // ── Línea divisoria entre original y duplicado ───────────────
+      doc.setDrawColor(150, 150, 150);
+      doc.setLineWidth(0.2);
+      doc.line(mL, pageH / 2, mR, pageH / 2);
+      doc.setTextColor(...midGray);
       doc.setFontSize(6.5);
-      doc.setTextColor(...gray);
-      doc.text(
-        `Generado por PayrollManager · ${new Date().toLocaleDateString("es-AR")} · Ley 20.744 Art. 140`,
-        m, pageH - 7
-      );
+      doc.setFont("helvetica", "italic");
+      doc.text("✂  Cortar por aquí", pageW / 2, pageH / 2, { align: "center" });
+
+      // Dibujar las dos copias
+      drawRecibo(0, "ORIGINAL");
+      drawRecibo(pageH / 2, "DUPLICADO");
 
       const filename = `recibo-${result.employeeName.replace(/\s+/g, "_")}-${startDate}.pdf`;
       doc.save(filename);
