@@ -104,6 +104,8 @@ export interface PayrollResult {
   employeeId: string;
   employeeName: string;
   cuil?: string | null;
+  dni?: string | null;
+  position?: string | null;
   baseSalary: number;
   periodSalary: number;
   hourlyRate: number;

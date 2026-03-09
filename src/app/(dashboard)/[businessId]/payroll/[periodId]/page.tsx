@@ -34,7 +34,7 @@ export default async function PayrollDetailPage({ params }: Props) {
       include: {
         items: {
           include: {
-            employee: { select: { name: true, position: true, payFrequency: true, cbu: true, cuil: true } },
+            employee: { select: { name: true, position: true, payFrequency: true, cbu: true, cuil: true, dni: true } },
           },
           orderBy: { employee: { name: "asc" } },
         },
@@ -61,6 +61,8 @@ export default async function PayrollDetailPage({ params }: Props) {
       employeeId: item.employeeId,
       employeeName: item.employee.name,
       cuil: item.employee.cuil ?? null,
+      dni: item.employee.dni ?? null,
+      position: item.employee.position,
       baseSalary: Number(item.baseSalary),
       periodSalary: Number(item.periodSalary),
       hourlyRate: Number(item.hourlyRate),
