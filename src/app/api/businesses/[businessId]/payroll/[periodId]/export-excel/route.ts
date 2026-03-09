@@ -39,10 +39,10 @@ export async function GET(req: NextRequest, { params }: Params) {
   const defaultRetentions = { base: 0, jubilacion: 0, obraSocial: 0, pami: 0, total: 0 };
 
   const rows = period.items.map((item) => {
-    const formula = item.formula as Record<string, number & { total?: number; jubilacion?: number; obraSocial?: number; pami?: number }>;
-    const gross = (formula?.grossAmount as number) ??
+    const formula = item.formula as Record<string, unknown>;
+    const gross = (formula?.grossAmount as number | undefined) ??
       (Number(item.periodSalary) + Number(item.extra50Amount) + Number(item.extra100Amount) + Number(item.holidayAmount));
-    const ret = (formula?.retentions as typeof defaultRetentions) ?? defaultRetentions;
+    const ret = (formula?.retentions as typeof defaultRetentions | undefined) ?? defaultRetentions;
 
     return {
       "Empleado": item.employee.name,
