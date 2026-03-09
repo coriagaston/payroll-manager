@@ -5,7 +5,6 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { toast } from "sonner";
 import { loginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { Button } from "@/components/ui/button";
@@ -61,7 +60,7 @@ export default function LoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@demo.com"
+                placeholder="tucorreo@email.com"
                 {...register("email")}
               />
               {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
@@ -71,7 +70,7 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                placeholder="password123"
+                placeholder="••••••••"
                 {...register("password")}
               />
               {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
@@ -81,12 +80,6 @@ export default function LoginPage() {
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Ingresando..." : "Ingresar"}
             </Button>
-            <p className="text-sm text-muted-foreground text-center">
-              ¿No tenés cuenta?{" "}
-              <Link href="/register" className="text-blue-600 hover:underline">
-                Registrate
-              </Link>
-            </p>
           </CardFooter>
         </form>
       </Card>

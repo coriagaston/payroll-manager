@@ -6,12 +6,17 @@ export default withAuth(
     const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
 
-    // Rutas públicas: auth
-    if (pathname.startsWith("/login") || pathname.startsWith("/register")) {
+    // Rutas públicas: solo login
+    if (pathname.startsWith("/login")) {
       if (token) {
         return NextResponse.redirect(new URL("/", req.url));
       }
       return NextResponse.next();
+    }
+
+    // Registro deshabilitado — redirigir al login
+    if (pathname.startsWith("/register")) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     return NextResponse.next();
@@ -23,7 +28,6 @@ export default withAuth(
         // Permitir rutas de auth y API de auth sin token
         if (
           pathname.startsWith("/login") ||
-          pathname.startsWith("/register") ||
           pathname.startsWith("/api/auth")
         ) {
           return true;
