@@ -93,8 +93,8 @@ export function calculatePeriodSalary(
 
   switch (frequency) {
     case "WEEKLY": {
-      // Una semana = baseSalary * 12 / 52 (semanas exactas por año)
-      const amount = (baseSalary * 12) / 52;
+      // Sueldo semanal = mensual / 4 (base legal argentina)
+      const amount = baseSalary / 4;
       return { amount, periodDays, calendarDays: 7 };
     }
     case "BIWEEKLY": {

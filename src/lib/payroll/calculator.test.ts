@@ -35,6 +35,9 @@ const defaultConfig: PayrollConfig = {
   monthlyHours: 200,
   dailyHours: 8,
   workingDaysPerMonth: 25,
+  jubilacionRate: 0.11,
+  obraSocialRate: 0.03,
+  pamiRate: 0.03,
 };
 
 // ─── TESTS DE UTILIDADES ──────────────────────────────────────────────────────
@@ -173,10 +176,9 @@ describe("calculatePeriodSalary - SEMANAL", () => {
     frequency: "WEEKLY",
   };
 
-  it("semanal = sueldo * 12 / 52", () => {
+  it("semanal = sueldo / 4", () => {
     const { amount } = calculatePeriodSalary(500000, "WEEKLY", period);
-    expect(round2(amount)).toBe(round2((500000 * 12) / 52));
-    // ≈ 115_384.62
+    expect(amount).toBe(125000);
   });
 });
 
@@ -310,9 +312,9 @@ describe("calculateEmployeePayroll - ANA (MENSUAL)", () => {
     expect(result.holidayAmount).toBe(32000);
   });
 
-  it("total = 800000 + 18000 + 16000 + 32000 = 866000", () => {
+  it("neto = bruto 866000 - retenciones 17% (147220) = 718780", () => {
     const result = calculateEmployeePayroll(ana, period, defaultConfig);
-    expect(result.totalAmount).toBe(866000);
+    expect(result.totalAmount).toBe(718780);
   });
 });
 
@@ -342,7 +344,7 @@ describe("calculateEmployeePayroll - CARLOS (QUINCENAL)", () => {
     absences: [],
   };
 
-  const hourlyRate = 600000 / 200; // 3000
+  // hourlyRate = 600000 / 200 = 3000 (usado internamente por el calculador)
 
   it("sueldo período = 300000 (600000 / 2)", () => {
     const result = calculateEmployeePayroll(carlos, period, defaultConfig);
@@ -370,9 +372,9 @@ describe("calculateEmployeePayroll - CARLOS (QUINCENAL)", () => {
     expect(result.advances).toBe(50000);
   });
 
-  it("total = 300000 + 36000 + 12000 - 50000 = 298000", () => {
+  it("neto = bruto 348000 - retenciones 17% (59160) - anticipo 50000 = 238840", () => {
     const result = calculateEmployeePayroll(carlos, period, defaultConfig);
-    expect(result.totalAmount).toBe(298000);
+    expect(result.totalAmount).toBe(238840);
   });
 });
 
@@ -402,10 +404,9 @@ describe("calculateEmployeePayroll - MARÍA (SEMANAL)", () => {
     absences: [],
   };
 
-  const weeklyBase = (500000 * 12) / 52;
-  const hourlyRate = 500000 / 200; // 2500
+  const weeklyBase = 500000 / 4; // 125000
 
-  it("sueldo semanal = 500000 * 12 / 52 ≈ 115384.62", () => {
+  it("sueldo semanal = 500000 / 4 = 125000", () => {
     const result = calculateEmployeePayroll(maria, period, defaultConfig);
     expect(round2(result.periodSalary)).toBe(round2(weeklyBase));
   });
@@ -431,14 +432,14 @@ describe("calculateEmployeePayroll - MARÍA (SEMANAL)", () => {
     expect(result.discounts).toBe(30000);
   });
 
-  it("total = weeklyBase + 22500 + 15000 - 30000", () => {
+  it("neto = bruto 162500 - retenciones 17% (27625) - descuento 30000 = 104875", () => {
     const result = calculateEmployeePayroll(maria, period, defaultConfig);
-    expect(round2(result.totalAmount)).toBe(round2(weeklyBase + 22500 + 15000 - 30000));
+    expect(result.totalAmount).toBe(104875);
   });
 });
 
 describe("Casos borde", () => {
-  it("empleado sin extras: total = sueldo período", () => {
+  it("empleado sin extras (INFORMAL): total = sueldo período sin retenciones", () => {
     const emp: EmployeePayrollInput = {
       id: "test",
       name: "Test",
@@ -446,6 +447,7 @@ describe("Casos borde", () => {
       payFrequency: "MONTHLY",
       hourlyRate: null,
       dailyHours: 8,
+      employmentType: "INFORMAL",
       overtimes: [],
       advances: [],
       absences: [],
