@@ -2,11 +2,11 @@ import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
 export default withAuth(
-  function middleware(req) {
+  function proxy(req) {
     const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
 
-    // Rutas públicas: solo login
+    // Rutas publicas: solo login
     if (pathname.startsWith("/login")) {
       if (token) {
         return NextResponse.redirect(new URL("/", req.url));
@@ -14,7 +14,7 @@ export default withAuth(
       return NextResponse.next();
     }
 
-    // Registro deshabilitado — redirigir al login
+    // Registro deshabilitado: redirigir al login
     if (pathname.startsWith("/register")) {
       return NextResponse.redirect(new URL("/login", req.url));
     }
