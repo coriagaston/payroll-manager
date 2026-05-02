@@ -269,6 +269,7 @@ model Advance {
 
   @@index([employeeId])
   @@index([businessId])
+  @@index([businessId, date])
 }
 
 // ─── ABSENCE ───────────────────────────────────────────────────────────────
@@ -320,6 +321,7 @@ model PayrollPeriod {
 
   @@index([businessId])
   @@index([businessId, status])
+  @@index([businessId, status, startDate])
 }
 
 enum PeriodType {
@@ -358,4 +360,5 @@ model PayrollItem {
   @@unique([periodId, employeeId])
   @@index([periodId])
   @@index([employeeId])
+  @@index([employeeId, createdAt])
 }

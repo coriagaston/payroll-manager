@@ -28,7 +28,7 @@ export default async function BusinessDashboard({ params }: Props) {
 
   const [
     membership, business, overtimeSummary, recentPeriods, recentEmployees, chartPeriods,
-    currentMonthPeriods, prevMonthPeriods, draftPeriods, allActiveEmployees,
+    masaActualAgg, masaAnteriorAgg, draftPeriods, allActiveEmployees,
   ] = await Promise.all([
     prisma.businessMember.findUnique({
       where: { userId_businessId: { userId: session.user.id, businessId } },
@@ -66,15 +66,15 @@ export default async function BusinessDashboard({ params }: Props) {
       take: 12,
       include: { items: { select: { totalAmount: true } } },
     }),
-    // Masa salarial mes actual (finalizadas)
-    prisma.payrollPeriod.findMany({
-      where: { businessId, status: "FINALIZED", startDate: { gte: monthStart, lte: monthEnd } },
-      include: { items: { select: { totalAmount: true } } },
+    // Masa salarial mes actual — aggregate en DB, sin traer filas
+    prisma.payrollItem.aggregate({
+      where: { period: { businessId, status: "FINALIZED", startDate: { gte: monthStart, lte: monthEnd } } },
+      _sum: { totalAmount: true },
     }),
-    // Masa salarial mes anterior (para comparativa)
-    prisma.payrollPeriod.findMany({
-      where: { businessId, status: "FINALIZED", startDate: { gte: prevMonthStart, lte: prevMonthEnd } },
-      include: { items: { select: { totalAmount: true } } },
+    // Masa salarial mes anterior — aggregate en DB, sin traer filas
+    prisma.payrollItem.aggregate({
+      where: { period: { businessId, status: "FINALIZED", startDate: { gte: prevMonthStart, lte: prevMonthEnd } } },
+      _sum: { totalAmount: true },
     }),
     // Liquidaciones en borrador
     prisma.payrollPeriod.findMany({
@@ -111,12 +111,8 @@ export default async function BusinessDashboard({ params }: Props) {
   );
 
   // Masa salarial mes actual vs anterior
-  const masaActual = currentMonthPeriods.reduce(
-    (s, p) => s + p.items.reduce((si, i) => si + Number(i.totalAmount), 0), 0
-  );
-  const masaAnterior = prevMonthPeriods.reduce(
-    (s, p) => s + p.items.reduce((si, i) => si + Number(i.totalAmount), 0), 0
-  );
+  const masaActual = Number(masaActualAgg._sum.totalAmount ?? 0);
+  const masaAnterior = Number(masaAnteriorAgg._sum.totalAmount ?? 0);
   const masaDiff = masaAnterior > 0
     ? ((masaActual - masaAnterior) / masaAnterior) * 100
     : null;
