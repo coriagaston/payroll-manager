@@ -3,14 +3,10 @@ import { NextResponse } from "next/server";
 
 export default withAuth(
   function proxy(req) {
-    const token = req.nextauth.token;
     const { pathname } = req.nextUrl;
 
-    // Rutas publicas: solo login
+    // Login siempre debe poder renderizar, incluso si quedo una cookie vieja.
     if (pathname.startsWith("/login")) {
-      if (token) {
-        return NextResponse.redirect(new URL("/", req.url));
-      }
       return NextResponse.next();
     }
 
@@ -22,6 +18,11 @@ export default withAuth(
     return NextResponse.next();
   },
   {
+    pages: {
+      signIn: "/login",
+      error: "/login",
+    },
+    secret: process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET,
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;

@@ -66,7 +66,7 @@ export function PayrollList({ rows, businessId, currency }: Props) {
       }
       return true;
     });
-  }, [rows, statusFilter, freqFilter, search]);
+  }, [rows, statusFilter, freqFilter, typeFilter, search]);
 
   const handleExportCsv = (periodId: string) => {
     window.open(`/api/businesses/${businessId}/payroll/${periodId}/export`, "_blank");
@@ -112,7 +112,7 @@ export function PayrollList({ rows, businessId, currency }: Props) {
     return (
       <div className="text-center py-16 bg-card rounded-lg border">
         <p className="text-muted-foreground">No hay liquidaciones generadas aún.</p>
-        <p className="text-muted-foreground text-sm mt-1">Usá el botón "Nueva liquidación" para comenzar.</p>
+        <p className="text-muted-foreground text-sm mt-1">Usá el botón &quot;Nueva liquidación&quot; para comenzar.</p>
       </div>
     );
   }

@@ -217,9 +217,9 @@ export function calculateRetentions(
   grossAmount: number,
   config: Pick<PayrollConfig, "jubilacionRate" | "obraSocialRate" | "pamiRate">
 ): RetentionBreakdown {
-  const jubilacion = grossAmount * config.jubilacionRate;
-  const obraSocial = grossAmount * config.obraSocialRate;
-  const pami = grossAmount * config.pamiRate;
+  const jubilacion = grossAmount * (config.jubilacionRate ?? 0);
+  const obraSocial = grossAmount * (config.obraSocialRate ?? 0);
+  const pami = grossAmount * (config.pamiRate ?? 0);
   return { base: grossAmount, jubilacion, obraSocial, pami, total: jubilacion + obraSocial + pami };
 }
 

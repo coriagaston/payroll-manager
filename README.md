@@ -47,6 +47,8 @@ DATABASE_URL="postgresql://postgres.[ref]:[pass]@[host]:6543/postgres?pgbouncer=
 DIRECT_URL="postgresql://postgres.[ref]:[pass]@[host]:5432/postgres"
 NEXTAUTH_URL="http://localhost:3000"
 NEXTAUTH_SECRET="genera-con-openssl-rand-base64-32"
+AUTH_SECRET="mismo-valor-que-NEXTAUTH_SECRET"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 ## Deploy en Vercel
@@ -63,6 +65,7 @@ DATABASE_URL      = postgresql://...?pgbouncer=true   (Transaction pooler - puer
 DIRECT_URL        = postgresql://...                   (Direct - puerto 5432)
 NEXTAUTH_URL      = https://tu-app.vercel.app
 NEXTAUTH_SECRET   = [openssl rand -base64 32]
+AUTH_SECRET       = [mismo valor que NEXTAUTH_SECRET]
 NEXT_PUBLIC_APP_URL = https://tu-app.vercel.app
 ```
 
