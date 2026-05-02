@@ -77,7 +77,7 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
             startDate: employee.startDate,
             baseSalary: employee.baseSalary,
             payFrequency: employee.payFrequency as EmployeeFormData["payFrequency"],
-            hourlyRate: employee.hourlyRate ?? undefined,
+            hourlyRate: (employee.hourlyRate && Number(employee.hourlyRate) > 0) ? Number(employee.hourlyRate) : undefined,
             dailyHours: employee.dailyHours,
             status: employee.status as EmployeeFormData["status"],
             employmentType: employee.employmentType as EmployeeFormData["employmentType"],
@@ -194,7 +194,13 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
               <Input
                 type="number"
                 step="0.01"
-                {...register("hourlyRate")}
+                {...register("hourlyRate", {
+                  setValueAs: (v) => {
+                    if (v === "" || v === null || v === undefined) return null;
+                    const n = Number(v);
+                    return n <= 0 ? null : n;
+                  }
+                })}
                 placeholder="Auto (basado en config)"
               />
               <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
@@ -326,7 +332,13 @@ export function EmployeeFormDialog({ businessId, mode, employee }: Props) {
               <Input
                 type="number"
                 step="0.01"
-                {...register("hourlyRate")}
+                {...register("hourlyRate", {
+                  setValueAs: (v) => {
+                    if (v === "" || v === null || v === undefined) return null;
+                    const n = Number(v);
+                    return n <= 0 ? null : n;
+                  }
+                })}
                 placeholder="Auto (basado en config)"
               />
               <p className="text-xs text-muted-foreground">Vacío = calculado automáticamente</p>
