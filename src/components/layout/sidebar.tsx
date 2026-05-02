@@ -6,7 +6,7 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import {
   LayoutDashboard, Users, Clock, Wallet, CalendarX, FileText,
-  Settings, ChevronDown, LogOut, Plus, type LucideIcon,
+  Settings, ChevronDown, LogOut, Plus, BarChart2, type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,8 +43,9 @@ const navItems = (businessId: string): NavItem[] => [
   { label: "Horas Extras",  href: `/${businessId}/overtime`,  icon: Clock },
   { label: "Anticipos",     href: `/${businessId}/advances`,  icon: Wallet },
   { label: "Inasistencias", href: `/${businessId}/absences`,  icon: CalendarX },
-  { label: "Liquidaciones", href: `/${businessId}/payroll`,   icon: FileText },
-  { label: "Configuración", href: `/${businessId}/settings`,  icon: Settings },
+  { label: "Liquidaciones", href: `/${businessId}/payroll`,    icon: FileText },
+  { label: "Análisis",      href: `/${businessId}/analytics`,  icon: BarChart2 },
+  { label: "Configuración", href: `/${businessId}/settings`,   icon: Settings },
 ];
 
 export function Sidebar({ businesses, user }: SidebarProps) {
