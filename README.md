@@ -5,8 +5,8 @@ App web multi-tenant para gestión de personal y liquidación de haberes. Next.j
 ## Credenciales del seed
 
 ```
-admin@demo.com  / password123  (Owner)
-viewer@demo.com / password123  (Viewer)
+gaston@demo.com / 40173735  (Owner)
+viewer@demo.com / 40173735  (Viewer)
 ```
 
 ## Stack
@@ -63,7 +63,11 @@ DATABASE_URL      = postgresql://...?pgbouncer=true   (Transaction pooler - puer
 DIRECT_URL        = postgresql://...                   (Direct - puerto 5432)
 NEXTAUTH_URL      = https://tu-app.vercel.app
 NEXTAUTH_SECRET   = [openssl rand -base64 32]
+NEXT_PUBLIC_APP_URL = https://tu-app.vercel.app
 ```
+
+> Importante: este repo no incluye `prisma/migrations`. Para inicializar una base nueva en Supabase,
+> correr una vez `npm run db:push` y luego `npm run db:seed`.
 
 ## Arquitectura multi-tenant
 
