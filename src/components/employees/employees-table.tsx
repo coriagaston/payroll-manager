@@ -13,6 +13,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmployeeFormDialog } from "./employee-form-dialog";
 import { formatCurrency } from "@/lib/payroll/calculator";
 import { format } from "date-fns";
@@ -61,7 +62,6 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
   });
 
   const handleDeactivate = async (id: string) => {
-    if (!confirm("¿Desactivar este empleado?")) return;
     try {
       const res = await fetch(`/api/businesses/${businessId}/employees/${id}`, {
         method: "DELETE",
@@ -146,14 +146,17 @@ export function EmployeesTable({ employees, businessId, canEdit }: Props) {
                         employee={emp}
                       />
                       {emp.status === "ACTIVE" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:text-red-600 dark:text-red-400"
-                          onClick={() => handleDeactivate(emp.id)}
-                        >
-                          Desactivar
-                        </Button>
+                        <ConfirmDialog
+                          trigger={
+                            <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 dark:text-red-400">
+                              Desactivar
+                            </Button>
+                          }
+                          title="Desactivar empleado"
+                          description={`¿Desactivar a ${emp.name}? Podrás reactivarlo desde su legajo.`}
+                          confirmLabel="Desactivar"
+                          onConfirm={() => handleDeactivate(emp.id)}
+                        />
                       )}
                     </TableCell>
                   )}

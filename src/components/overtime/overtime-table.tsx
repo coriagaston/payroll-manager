@@ -13,6 +13,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface OvertimeRow {
   id: string;
@@ -61,7 +62,6 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar este registro?")) return;
     try {
       const res = await fetch(
         `/api/businesses/${businessId}/overtime?id=${id}`,
@@ -164,14 +164,17 @@ export function OvertimeTable({ rows, employees, businessId, canEdit, defaultFro
                   <TableCell className="text-muted-foreground max-w-xs truncate">{row.note || "—"}</TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-600 dark:text-red-400"
-                        onClick={() => handleDelete(row.id)}
-                      >
-                        Eliminar
-                      </Button>
+                      <ConfirmDialog
+                        trigger={
+                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 dark:text-red-400">
+                            Eliminar
+                          </Button>
+                        }
+                        title="Eliminar registro"
+                        description={`¿Eliminar las ${row.hours}h de ${row.employeeName} del ${new Date(row.date + "T00:00:00").toLocaleDateString("es-AR")}?`}
+                        confirmLabel="Eliminar"
+                        onConfirm={() => handleDelete(row.id)}
+                      />
                     </TableCell>
                   )}
                 </TableRow>

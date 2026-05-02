@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "PayrollManager - Gestión de Personal",
+  title: "AdSueldos - Gestión de Personal",
   description: "Administra el personal y liquidaciones de tus negocios",
 };
 

@@ -12,6 +12,7 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatCurrency } from "@/lib/payroll/calculator";
 import { format } from "date-fns";
 import { AdvanceFormDialog } from "./advance-form-dialog";
@@ -54,7 +55,6 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
   const totalDiscounts = filtered.filter((a) => a.isDiscount).reduce((s, a) => s + a.amount, 0);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar este registro?")) return;
     try {
       const res = await fetch(`/api/businesses/${businessId}/advances?id=${id}`, {
         method: "DELETE",
@@ -147,14 +147,17 @@ export function AdvancesTable({ advances, employees, businessId, canEdit, curren
                   </TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-600 dark:text-red-400"
-                        onClick={() => handleDelete(adv.id)}
-                      >
-                        Eliminar
-                      </Button>
+                      <ConfirmDialog
+                        trigger={
+                          <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 dark:text-red-400">
+                            Eliminar
+                          </Button>
+                        }
+                        title="Eliminar registro"
+                        description={`¿Eliminar este ${adv.isDiscount ? "descuento" : "anticipo"} de ${adv.employee.name}?`}
+                        confirmLabel="Eliminar"
+                        onConfirm={() => handleDelete(adv.id)}
+                      />
                     </TableCell>
                   )}
                 </TableRow>

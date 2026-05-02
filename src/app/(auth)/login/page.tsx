@@ -47,10 +47,10 @@ export default function LoginPage() {
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-2">
             <div className="h-10 w-10 rounded-lg bg-blue-600 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
+              <span className="text-white font-bold text-lg">A</span>
             </div>
           </div>
-          <CardTitle className="text-2xl">PayrollManager</CardTitle>
+          <CardTitle className="text-2xl">AdSueldos</CardTitle>
           <CardDescription>Ingresá tu email y contraseña</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>

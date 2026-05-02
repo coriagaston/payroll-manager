@@ -70,9 +70,9 @@ export function Sidebar({ businesses, user }: SidebarProps) {
       <div className="h-14 px-4 flex items-center border-b border-sidebar-border shrink-0">
         <Link href="/" className="flex items-center gap-2.5">
           <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-sm">
-            <span className="text-white font-bold text-sm">P</span>
+            <span className="text-white font-bold text-sm">A</span>
           </div>
-          <span className="font-semibold text-sidebar-foreground tracking-tight">PayrollManager</span>
+          <span className="font-semibold text-sidebar-foreground tracking-tight">AdSueldos</span>
         </Link>
       </div>
 

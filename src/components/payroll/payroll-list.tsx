@@ -13,6 +13,7 @@ import {
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { formatCurrency } from "@/lib/payroll/calculator";
 import { format } from "date-fns";
 
@@ -77,7 +78,6 @@ export function PayrollList({ rows, businessId, currency }: Props) {
   };
 
   const handleFinalize = async (periodId: string) => {
-    if (!confirm("¿Finalizar esta liquidación? No podrá modificarse después.")) return;
     try {
       const res = await fetch(`/api/businesses/${businessId}/payroll/${periodId}`, {
         method: "PATCH",
@@ -94,7 +94,6 @@ export function PayrollList({ rows, businessId, currency }: Props) {
   };
 
   const handleDelete = async (periodId: string) => {
-    if (!confirm("¿Eliminar esta liquidación?")) return;
     try {
       const res = await fetch(`/api/businesses/${businessId}/payroll/${periodId}`, {
         method: "DELETE",
