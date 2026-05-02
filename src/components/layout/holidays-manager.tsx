@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { format } from "date-fns";
-import { es } from "date-fns/locale";
 
 interface Holiday { id: string; date: string; name: string }
 
@@ -22,18 +23,28 @@ interface Props {
   canEdit: boolean;
 }
 
+const AVAILABLE_YEARS = [2025, 2026];
+
 export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [loadingBulk, setLoadingBulk] = useState(false);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
-  const loadFeriados2025 = async () => {
-    if (!confirm("¿Cargar los feriados nacionales argentinos 2025? Se ignorarán los que ya existen.")) return;
+  const loadFeriadosByYear = async () => {
     setLoadingBulk(true);
     try {
-      const res = await fetch(`/api/businesses/${businessId}/holidays`, { method: "POST" });
+      const res = await fetch(`/api/businesses/${businessId}/holidays`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ year: selectedYear }),
+      });
       const data = await res.json();
-      toast.success(`${data.added} feriados agregados (${data.total - data.added} ya existían)`);
+      if (!res.ok) {
+        toast.error(data.error ?? "Error al cargar feriados");
+        return;
+      }
+      toast.success(`${data.added} feriados ${selectedYear} agregados (${data.total - data.added} ya existían)`);
       router.refresh();
     } catch (error) {
       console.error(error);
@@ -107,12 +118,36 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
       )}
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between gap-3 flex-wrap">
           <CardTitle className="text-base">Feriados configurados ({holidays.length})</CardTitle>
           {canEdit && (
-            <Button variant="outline" size="sm" onClick={loadFeriados2025} disabled={loadingBulk}>
-              {loadingBulk ? "Cargando..." : "Cargar feriados 2025"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Select
+                value={String(selectedYear)}
+                onValueChange={(v) => setSelectedYear(Number(v))}
+              >
+                <SelectTrigger className="w-24">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AVAILABLE_YEARS.map((y) => (
+                    <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <ConfirmDialog
+                trigger={
+                  <Button variant="outline" size="sm" disabled={loadingBulk}>
+                    {loadingBulk ? "Cargando..." : `Cargar feriados ${selectedYear}`}
+                  </Button>
+                }
+                title={`Cargar feriados ${selectedYear}`}
+                description={`¿Agregar los feriados nacionales argentinos ${selectedYear}? Los que ya existen se ignorarán.`}
+                confirmLabel="Cargar"
+                variant="default"
+                onConfirm={loadFeriadosByYear}
+              />
+            </div>
           )}
         </CardHeader>
         <CardContent>
@@ -129,14 +164,17 @@ export function HolidaysManager({ businessId, holidays, canEdit }: Props) {
                     <span className="text-sm">{h.name}</span>
                   </div>
                   {canEdit && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-600 dark:text-red-400"
-                      onClick={() => deleteHoliday(h.id)}
-                    >
-                      Eliminar
-                    </Button>
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:text-red-600 dark:text-red-400">
+                          Eliminar
+                        </Button>
+                      }
+                      title="Eliminar feriado"
+                      description={`¿Eliminar "${h.name}" del ${format(new Date(h.date + "T00:00:00"), "dd/MM/yyyy")}?`}
+                      confirmLabel="Eliminar"
+                      onConfirm={() => deleteHoliday(h.id)}
+                    />
                   )}
                 </div>
               ))}

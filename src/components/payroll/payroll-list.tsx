@@ -227,21 +227,33 @@ export function PayrollList({ rows, businessId, currency }: Props) {
                 </Button>
                 {row.status === "DRAFT" && (
                   <>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleFinalize(row.id)}
-                    >
-                      Finalizar
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-500 hover:text-red-600 dark:text-red-400"
-                      onClick={() => handleDelete(row.id)}
-                    >
-                      Eliminar
-                    </Button>
+                    <ConfirmDialog
+                      trigger={
+                        <Button variant="outline" size="sm">
+                          Finalizar
+                        </Button>
+                      }
+                      title="Finalizar liquidación"
+                      description="¿Finalizar esta liquidación? Una vez finalizada no podrá ser modificada ni eliminada."
+                      confirmLabel="Finalizar"
+                      variant="default"
+                      onConfirm={() => handleFinalize(row.id)}
+                    />
+                    <ConfirmDialog
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-500 hover:text-red-600 dark:text-red-400"
+                        >
+                          Eliminar
+                        </Button>
+                      }
+                      title="Eliminar liquidación"
+                      description="¿Eliminar esta liquidación? Esta acción no se puede deshacer."
+                      confirmLabel="Eliminar"
+                      onConfirm={() => handleDelete(row.id)}
+                    />
                   </>
                 )}
               </TableCell>

@@ -139,7 +139,26 @@ export async function POST(req: NextRequest, { params }: Params) {
     return NextResponse.json({ results, period });
   }
 
-  // Guardar en DB
+  // Verificar que no haya períodos solapados para la misma frecuencia
+  const overlapping = await prisma.payrollPeriod.findFirst({
+    where: {
+      businessId,
+      frequency,
+      startDate: { lte: new Date(endDate) },
+      endDate: { gte: new Date(startDate) },
+    },
+    select: { id: true, startDate: true, endDate: true },
+  });
+  if (overlapping) {
+    const from = overlapping.startDate.toISOString().split("T")[0];
+    const to = overlapping.endDate.toISOString().split("T")[0];
+    return NextResponse.json(
+      { error: `Ya existe un período ${frequency} que se superpone (${from} → ${to})` },
+      { status: 409 }
+    );
+  }
+
+  // Guardar en DB — el create anidado es atómico en Prisma
   const payrollPeriod = await prisma.payrollPeriod.create({
     data: {
       businessId,

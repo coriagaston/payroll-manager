@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 interface Absence {
   id: string;
@@ -25,6 +26,7 @@ interface Props {
 export function AbsencesTable({ absences, businessId, canEdit }: Props) {
   const router = useRouter();
   const [search, setSearch] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const filtered = absences.filter((a) =>
     !search || a.employee.name.toLowerCase().includes(search.toLowerCase())
@@ -33,7 +35,7 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
   const totalDays = absences.reduce((s, a) => s + a.days, 0);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("¿Eliminar esta ausencia?")) return;
+    setDeletingId(id);
     try {
       const res = await fetch(`/api/businesses/${businessId}/absences/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
@@ -41,6 +43,8 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
       router.refresh();
     } catch {
       toast.error("Error al eliminar");
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -85,14 +89,22 @@ export function AbsencesTable({ absences, businessId, canEdit }: Props) {
                   <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{a.note ?? "—"}</TableCell>
                   {canEdit && (
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-600 dark:text-red-400"
-                        onClick={() => handleDelete(a.id)}
-                      >
-                        Eliminar
-                      </Button>
+                      <ConfirmDialog
+                        trigger={
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-600 dark:text-red-400"
+                            disabled={deletingId === a.id}
+                          >
+                            {deletingId === a.id ? "Eliminando..." : "Eliminar"}
+                          </Button>
+                        }
+                        title="Eliminar ausencia"
+                        description={`¿Eliminar la ausencia de ${a.employee.name} del ${format(new Date(a.date + "T00:00:00"), "dd/MM/yyyy")}?`}
+                        confirmLabel="Eliminar"
+                        onConfirm={() => handleDelete(a.id)}
+                      />
                     </TableCell>
                   )}
                 </TableRow>

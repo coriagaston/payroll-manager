@@ -57,8 +57,12 @@ export async function POST(req: NextRequest, { params }: Params) {
   const { employeeId, date, days, note } = parsed.data;
 
   // Verificar que el empleado pertenece al negocio
-  const employee = await prisma.employee.findFirst({ where: { id: employeeId, businessId } });
+  const [employee, existing] = await Promise.all([
+    prisma.employee.findFirst({ where: { id: employeeId, businessId } }),
+    prisma.absence.findFirst({ where: { employeeId, businessId, date: new Date(date) } }),
+  ]);
   if (!employee) return NextResponse.json({ error: "Empleado no encontrado" }, { status: 404 });
+  if (existing) return NextResponse.json({ error: "Ya existe una ausencia para ese empleado en esa fecha" }, { status: 409 });
 
   const absence = await prisma.absence.create({
     data: { employeeId, businessId, date: new Date(date), days, note },

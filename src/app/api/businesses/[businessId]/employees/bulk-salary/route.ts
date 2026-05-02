@@ -31,24 +31,25 @@ export async function POST(req: NextRequest, { params }: Params) {
     select: { id: true, baseSalary: true },
   });
 
-  // Actualizar cada uno y crear historial en paralelo
-  await Promise.all(
-    employees.map(async (emp) => {
-      const newSalary = Math.round(Number(emp.baseSalary) * multiplier * 100) / 100;
-      await prisma.employee.update({
-        where: { id: emp.id },
-        data: { baseSalary: newSalary },
-      });
-      await prisma.employeeSalaryHistory.create({
-        data: {
-          employeeId: emp.id,
-          salary: newSalary,
-          validFrom: new Date(),
-          note: `Aumento masivo ${percent}%`,
-        },
-      });
-    })
-  );
+  await prisma.$transaction(async (tx) => {
+    await Promise.all(
+      employees.map(async (emp) => {
+        const newSalary = Math.round(Number(emp.baseSalary) * multiplier * 100) / 100;
+        await tx.employee.update({
+          where: { id: emp.id },
+          data: { baseSalary: newSalary },
+        });
+        await tx.employeeSalaryHistory.create({
+          data: {
+            employeeId: emp.id,
+            salary: newSalary,
+            validFrom: new Date(),
+            note: `Aumento masivo ${percent}%`,
+          },
+        });
+      })
+    );
+  });
 
   return NextResponse.json({ updated: employees.length });
 }

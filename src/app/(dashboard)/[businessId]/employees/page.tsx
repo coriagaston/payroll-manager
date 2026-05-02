@@ -24,6 +24,7 @@ export default async function EmployeesPage({ params }: Props) {
   const employees = await prisma.employee.findMany({
     where: { businessId },
     orderBy: [{ status: "asc" }, { name: "asc" }],
+    take: 500,
   });
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";

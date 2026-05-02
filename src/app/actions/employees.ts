@@ -24,6 +24,7 @@ export async function createEmployee(businessId: string, data: EmployeeFormData)
   });
 
   revalidatePath(`/${businessId}/employees`);
+  revalidatePath(`/${businessId}`);
   return employee;
 }
 
@@ -62,6 +63,8 @@ export async function updateEmployee(
   });
 
   revalidatePath(`/${businessId}/employees`);
+  revalidatePath(`/${businessId}/employees/${employeeId}`);
+  revalidatePath(`/${businessId}`);
 }
 
 export async function deactivateEmployee(businessId: string, employeeId: string) {
@@ -76,4 +79,6 @@ export async function deactivateEmployee(businessId: string, employeeId: string)
   });
 
   revalidatePath(`/${businessId}/employees`);
+  revalidatePath(`/${businessId}/employees/${employeeId}`);
+  revalidatePath(`/${businessId}`);
 }

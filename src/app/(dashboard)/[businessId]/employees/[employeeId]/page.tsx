@@ -51,7 +51,7 @@ export default async function EmployeeDetailPage({ params }: Props) {
     }),
     prisma.employeeSalaryHistory.findMany({
       where: { employeeId },
-      orderBy: { validFrom: "desc" },
+      orderBy: { validFrom: "asc" },
     }),
     prisma.employeeDocument.findMany({
       where: { employeeId },

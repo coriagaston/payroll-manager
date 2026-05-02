@@ -37,6 +37,7 @@ export default async function PayrollDetailPage({ params }: Props) {
             employee: { select: { name: true, position: true, payFrequency: true, cbu: true, cuil: true, dni: true } },
           },
           orderBy: { employee: { name: "asc" } },
+          take: 500,
         },
       },
     }),
