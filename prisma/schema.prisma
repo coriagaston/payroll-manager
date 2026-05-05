@@ -70,6 +70,7 @@ model Business {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
   members          BusinessMember[]
+  invitations      BusinessInvitation[]
   employees        Employee[]
   holidays         Holiday[]
   absences         Absence[]
@@ -135,6 +136,22 @@ model BusinessMember {
   @@unique([userId, businessId])
   @@index([businessId])
   @@index([userId])
+}
+
+model BusinessInvitation {
+  id         String     @id @default(cuid())
+  businessId String
+  email      String
+  role       MemberRole @default(VIEWER)
+  token      String     @unique @default(cuid())
+  expiresAt  DateTime
+  acceptedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, email])
+  @@index([token])
 }
 
 enum MemberRole {

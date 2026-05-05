@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { BusinessConfigForm } from "@/components/layout/business-config-form";
 import { HolidaysManager } from "@/components/layout/holidays-manager";
 import { ConceptsManager } from "@/components/layout/concepts-manager";
+import { MembersManager } from "@/components/settings/members-manager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 
@@ -23,6 +24,8 @@ export default async function SettingsPage({ params }: Props) {
   }
 
   const canEdit = membership.role === "OWNER" || membership.role === "ADMIN";
+  const isOwner = membership.role === "OWNER";
+  const baseUrl = process.env.NEXTAUTH_URL ?? "";
 
   const [business, config, holidays, concepts] = await Promise.all([
     prisma.business.findUnique({ where: { id: businessId }, select: { name: true, currency: true } }),
@@ -75,6 +78,7 @@ export default async function SettingsPage({ params }: Props) {
           <TabsTrigger value="config">Parámetros de liquidación</TabsTrigger>
           <TabsTrigger value="concepts">Conceptos salariales</TabsTrigger>
           <TabsTrigger value="holidays">Feriados</TabsTrigger>
+          <TabsTrigger value="team">Equipo</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="pt-4">
@@ -98,6 +102,15 @@ export default async function SettingsPage({ params }: Props) {
             businessId={businessId}
             holidays={holidayRows}
             canEdit={canEdit}
+          />
+        </TabsContent>
+
+        <TabsContent value="team" className="pt-4">
+          <MembersManager
+            businessId={businessId}
+            currentUserId={session.user.id}
+            isOwner={isOwner}
+            baseUrl={baseUrl}
           />
         </TabsContent>
       </Tabs>
